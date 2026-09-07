@@ -14,6 +14,17 @@ jobs:
     name: Run Automated Test Suite
     runs-on: ubuntu-latest
 
+    services:
+      mongo:
+        image: mongo:7.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: 📥 Check out repository code
         uses: actions/checkout@v4
@@ -32,6 +43,7 @@ jobs:
         env:
           NODE_ENV: test
           JWT_SECRET: ci_pipeline_super_secure_jwt_secret_2026
+          MONGO_URI: mongodb://127.0.0.1:27017/divide_and_rule
 
   # =========================================================
   # STAGE 2: Continuous Delivery (CD) — Build & Push to Docker Hub
