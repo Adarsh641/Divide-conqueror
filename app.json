@@ -2,6 +2,7 @@
   "expo": {
     "name": "Divide & Rule",
     "slug": "divide-and-rule",
+    "owner": "adarsh76777",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
@@ -29,6 +30,11 @@
     },
     "web": {
       "favicon": "./preview/favicon.ico"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "98b08277-7d2f-4f37-8efc-2450195f7d4f"
+      }
     }
   }
 }
