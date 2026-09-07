@@ -1,0 +1,11 @@
+# EAS Ignore
+node_modules/
+server/
+preview/
+.git/
+.github/
+.agents/
+*.log
+coverage/
+scratch/
+.env*
