@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "Divide & Rule",
+    "slug": "divide-and-rule",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#051B14",
+    "splash": {
+      "backgroundColor": "#051B14",
+      "resizeMode": "contain"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.adarsh.divideandrule"
+    },
+    "android": {
+      "package": "com.adarsh.divideandrule",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#051B14"
+      },
+      "permissions": [
+        "INTERNET"
+      ]
+    },
+    "web": {
+      "favicon": "./preview/favicon.ico"
+    }
+  }
+}
