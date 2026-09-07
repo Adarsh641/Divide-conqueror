@@ -1,0 +1,3114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Divide & Rule — Interactive Product Review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    :root {
+      --bg-deep: #051B14;
+      --bg-elevated: #0A2B20;
+      --bg-card: #0D3528;
+      --accent-mint: #00E599;
+      --accent-mint-light: #4EFEB3;
+      --text-white: #FFFFFF;
+      --text-muted: #A1BDB3;
+      --text-dim: #698E82;
+      --glass-bg: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --ambient-glow: rgba(0, 229, 153, 0.16);
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #060e0b;
+      background-image: 
+        radial-gradient(circle at 15% 20%, rgba(0, 229, 153, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(10, 43, 32, 0.4) 0%, transparent 50%);
+      color: #E2E8F0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 1060px;
+      margin-bottom: 20px;
+    }
+
+    .brand-badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-badge h1 {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+      color: #fff;
+    }
+
+    .brand-badge span {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background: rgba(0, 229, 153, 0.15);
+      color: var(--accent-mint);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-weight: 700;
+      border: 1px solid rgba(0, 229, 153, 0.3);
+    }
+
+    .nav-controls {
+      display: flex;
+      gap: 5px;
+      background: #0f1f1a;
+      padding: 5px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: #A1BDB3;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 7px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--bg-card);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .workspace {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 36px;
+      width: 100%;
+      max-width: 1080px;
+    }
+
+    .phone-container {
+      position: relative;
+      width: 390px;
+      height: 800px;
+      background: #000;
+      border-radius: 48px;
+      box-shadow: 
+        0 0 0 10px #1a2924,
+        0 0 0 12px #2f443c,
+        0 25px 60px -10px rgba(0, 0, 0, 0.8),
+        0 0 60px rgba(0, 229, 153, 0.12);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .camera-punch {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 13px;
+      height: 13px;
+      background: #000;
+      border-radius: 50%;
+      z-index: 99;
+    }
+
+    .status-bar {
+      height: 38px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      z-index: 90;
+      padding-top: 6px;
+      background: transparent;
+    }
+
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+    }
+
+    .screen-content {
+      flex: 1;
+      position: relative;
+      background: var(--bg-deep);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ambient-halo-top {
+      position: absolute;
+      top: -100px;
+      right: -50px;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: var(--bg-elevated);
+      filter: blur(40px);
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    .nav-bar {
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 90;
+      background: var(--bg-deep);
+    }
+
+    .nav-pill {
+      width: 100px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 2px;
+    }
+
+    .view-container {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 12px 20px 90px 20px;
+      transition: opacity 0.3s ease;
+      scrollbar-width: none;
+    }
+    .view-container::-webkit-scrollbar { display: none; }
+
+    /* Buttons */
+    .btn {
+      width: 100%;
+      height: 56px;
+      border-radius: 9999px;
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.15s ease;
+    }
+    .btn:active { transform: scale(0.97); }
+
+    .btn-primary {
+      background: var(--accent-mint);
+      color: var(--bg-deep);
+      box-shadow: 0 8px 24px rgba(0, 229, 153, 0.35);
+    }
+    .btn-secondary {
+      background: var(--glass-bg);
+      color: var(--text-white);
+      border: 1.5px solid var(--glass-border);
+    }
+
+    /* Stepper Component */
+    .stepper-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 0 16px 0;
+      width: 100%;
+    }
+
+    .stepper-nodes-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 260px;
+    }
+
+    .step-node-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .step-node-circle {
+      width: 26px;
+      height: 26px;
+      border-radius: 13px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .step-node-circle.active {
+      background: var(--accent-mint);
+      border-color: var(--accent-mint);
+      color: var(--bg-deep);
+      font-weight: 900;
+      box-shadow: 0 0 12px rgba(0, 229, 153, 0.6);
+    }
+
+    .step-node-circle.completed {
+      background: #0D3528;
+      border-color: var(--accent-mint);
+      color: var(--accent-mint);
+      font-weight: 900;
+    }
+
+    .step-node-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-dim);
+    }
+
+    .step-node-label.active {
+      color: var(--accent-mint);
+      font-weight: 700;
+    }
+
+    .step-line {
+      flex: 1;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.1);
+      margin: 0 8px;
+      margin-top: -14px;
+    }
+
+    .step-line.active {
+      background: var(--accent-mint);
+    }
+
+    /* Form Elements */
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .form-input-wrap {
+      display: flex;
+      align-items: center;
+      background: rgba(13, 53, 40, 0.8);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 0 14px;
+      height: 50px;
+    }
+
+    .form-input-icon {
+      margin-right: 10px;
+      font-size: 15px;
+    }
+
+    .form-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      outline: none;
+    }
+
+    .dates-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .currency-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .curr-pill {
+      height: 42px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .curr-pill.active {
+      background: rgba(0, 229, 153, 0.18);
+      border-color: var(--accent-mint);
+      color: var(--accent-mint);
+      font-weight: 700;
+    }
+
+    /* Step 2 Members */
+    .member-chips-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .member-chip-ui {
+      display: flex;
+      align-items: center;
+      background: #0A2B20;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 9999px;
+      padding: 4px 10px 4px 4px;
+      gap: 8px;
+    }
+
+    .member-chip-ui.organizer {
+      background: rgba(0, 229, 153, 0.08);
+      border-color: rgba(0, 229, 153, 0.3);
+    }
+
+    .member-chip-av {
+      width: 26px;
+      height: 26px;
+      border-radius: 13px;
+      background: #134737;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .member-chip-ui.organizer .member-chip-av {
+      background: var(--accent-mint);
+      color: var(--bg-deep);
+    }
+
+    .member-chip-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .member-chip-del {
+      width: 16px;
+      height: 16px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--text-muted);
+    }
+    .member-chip-del:hover { background: rgba(255, 92, 92, 0.3); color: #fff; }
+
+    /* Covers */
+    .covers-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .cover-box {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1.5px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 12px 6px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .cover-box.active {
+      background: rgba(0, 229, 153, 0.15);
+      border-color: var(--accent-mint);
+    }
+
+    .cover-box-icon { font-size: 20px; margin-bottom: 4px; }
+    .cover-box-name { font-size: 11px; font-weight: 600; color: var(--text-muted); }
+    .cover-box.active .cover-box-name { color: var(--accent-mint); font-weight: 700; }
+
+    /* Review Card */
+    .review-box {
+      background: #0A2B20;
+      border: 1.5px solid rgba(0, 229, 153, 0.3);
+      border-radius: 18px;
+      padding: 16px;
+      margin-top: 10px;
+    }
+
+    .review-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 12px;
+    }
+
+    .sticky-bottom-action {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(5, 27, 20, 0.95);
+      backdrop-filter: blur(12px);
+      padding: 12px 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      z-index: 85;
+    }
+
+    /* Common Card / Components from previous screens */
+    .dash-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); margin-bottom: 16px; }
+    .dash-brand { display: flex; align-items: center; gap: 10px; }
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
+    .stat-card { background: rgba(13, 53, 40, 0.75); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 18px; padding: 12px 10px; min-height: 88px; cursor: pointer; }
+    .hero-card { background: #0A2B20; border-radius: 22px; padding: 18px; border: 1.5px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 12px; }
+    .hero-card.trip-card { border-color: rgba(0, 229, 153, 0.25); }
+    .hero-badge { display: inline-block; font-size: 9px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; background: rgba(0, 229, 153, 0.15); color: var(--accent-mint); padding: 3px 8px; border-radius: 9999px; margin-bottom: 6px; border: 1px solid rgba(0, 229, 153, 0.3); }
+    .arrow-circle { width: 32px; height: 32px; border-radius: 50%; background: var(--accent-mint); color: var(--bg-deep); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 900; }
+    .thought-card { background: rgba(13, 53, 40, 0.65); border-radius: 20px; padding: 16px; border: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 10px; }
+
+    /* Trips Hub Components */
+    .app-bar { display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); margin-bottom: 14px; }
+    .back-btn { width: 36px; height: 36px; border-radius: 18px; background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer; font-size: 16px; font-weight: 800; }
+    .hub-hero { background: #0A2B20; border-radius: 20px; border: 1.5px solid rgba(0, 229, 153, 0.25); overflow: hidden; margin-bottom: 16px; }
+    .trip-card-item { background: #0A2B20; border-radius: 20px; padding: 14px 16px; border: 1.5px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; margin-bottom: 12px; cursor: pointer; }
+    .trip-thumb { width: 48px; height: 48px; border-radius: 14px; background: #134737; display: flex; align-items: center; justify-content: center; margin-right: 14px; overflow: hidden; }
+
+    /* Floating Bottom Dock */
+    .floating-dock { position: absolute; bottom: 12px; left: 14px; right: 14px; height: 64px; background: rgba(10, 43, 32, 0.94); backdrop-filter: blur(16px); border-radius: 32px; border: 1.5px solid rgba(255, 255, 255, 0.12); display: flex; align-items: center; justify-content: space-around; padding: 0 10px; box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6); z-index: 80; }
+    .dock-tab { display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--text-muted); font-size: 10px; font-weight: 600; cursor: pointer; flex: 1; padding: 4px 0; }
+    .dock-tab.active { color: var(--accent-mint); font-weight: 700; }
+    .dock-center-btn { width: 48px; height: 48px; border-radius: 50%; background: var(--accent-mint); color: var(--bg-deep); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 900; margin-top: -18px; border: 3.5px solid #051B14; box-shadow: 0 6px 16px rgba(0, 229, 153, 0.45); cursor: pointer; }
+
+    /* Side Panel */
+    .side-panel { flex: 1; max-width: 440px; display: flex; flex-direction: column; gap: 16px; }
+    .panel-card { background: #0f231c; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 18px; padding: 18px; }
+    .panel-card h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-mint); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+    .action-pill-btn { background: #17382d; border: 1px solid rgba(0, 229, 153, 0.3); color: #fff; font-size: 12px; font-weight: 600; padding: 8px 14px; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; }
+    .action-pill-btn:hover { background: #1f493b; border-color: var(--accent-mint); }
+
+    /* Friends Screen Styles */
+    .f-tab-btn { background: rgba(255,255,255,0.05); border: 1px solid transparent; color: var(--text-muted); font-size: 11px; font-weight: 700; padding: 7px 10px; border-radius: 12px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 4px; flex: 1; }
+    .f-tab-btn.active { background: rgba(0, 229, 153, 0.15); border-color: var(--accent-mint); color: var(--accent-mint); }
+    .f-card { background: rgba(13, 53, 40, 0.65); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; }
+    .f-avatar { width: 40px; height: 40px; border-radius: 20px; background: #0F3C2C; border: 1.5px solid rgba(0,229,153,0.3); color: var(--accent-mint); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; flex-shrink: 0; }
+    .f-btn-primary { background: var(--accent-mint); color: #051B14; border: none; font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+    .f-btn-primary:hover { opacity: 0.9; }
+    .f-btn-outline { background: rgba(255,255,255,0.08); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.12); font-size: 11px; font-weight: 700; padding: 6px 10px; border-radius: 10px; cursor: pointer; }
+    .f-btn-outline:hover { background: rgba(255,255,255,0.14); color: #fff; }
+    .f-badge-req { background: rgba(255,255,255,0.1); color: var(--text-muted); font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 8px; }
+    .f-badge-friends { background: rgba(0,229,153,0.15); color: var(--accent-mint); border: 1px solid rgba(0,229,153,0.3); font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 8px; }
+
+    .hidden { display: none !important; opacity: 0; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation / Screen Switcher -->
+  <div class="top-bar">
+    <div class="brand-badge">
+      <h1>Divide & Rule</h1>
+      <span>Interactive Review</span>
+    </div>
+    <div class="nav-controls">
+      <button class="tab-btn" id="btn-splash" onclick="showScreen('splash')">1. Splash</button>
+      <button class="tab-btn" id="btn-welcome" onclick="showScreen('welcome')">2. Welcome</button>
+      <button class="tab-btn" id="btn-signup" onclick="showScreen('signup')">3. Sign Up ✦</button>
+      <button class="tab-btn" id="btn-login" onclick="showScreen('login')">4. Log In</button>
+      <button class="tab-btn" id="btn-home" onclick="showScreen('home')">5. Home</button>
+      <button class="tab-btn" id="btn-trips" onclick="showScreen('trips')">6. Trips Hub</button>
+      <button class="tab-btn" id="btn-create" onclick="showScreen('create')">7. Create Trip</button>
+      <button class="tab-btn" id="btn-friends" onclick="showScreen('friends')">8. Friends 👥</button>
+      <button class="tab-btn" id="btn-details" onclick="showScreen('details')">9. Trip Details ⚡</button>
+    </div>
+  </div>
+
+  <div class="workspace">
+    <!-- Android Frame Container -->
+    <div class="phone-container">
+      <div class="camera-punch"></div>
+
+      <!-- Android Status Bar -->
+      <div class="status-bar">
+        <span id="current-time">9:41</span>
+        <div class="status-icons">
+          <span>5G</span>
+          <span>●●●</span>
+          <span>100%</span>
+        </div>
+      </div>
+
+      <!-- Screen Content Canvas -->
+      <div class="screen-content">
+        <div class="ambient-halo-top"></div>
+
+        <!-- 1. SPLASH SCREEN -->
+        <div class="splash-view hidden" id="view-splash">
+          <div style="text-align: center;">
+            <svg width="80" height="80" viewBox="0 0 96 96" fill="none" style="margin-bottom: 20px;">
+              <path d="M26 8h44c14 0 20 6 20 20v40c0 14-6 20-20 20H26C12 88 6 82 6 68V28C6 14 12 8 26 8z" fill="#0D3528" stroke="rgba(255, 255, 255, 0.12)" stroke-width="1.5" />
+              <path d="M30 38C30 28 38 22 48 22H52" stroke="#00E599" stroke-width="4.5" stroke-linecap="round" />
+              <path d="M66 58C66 68 58 74 48 74H44" stroke="#00E599" stroke-width="4.5" stroke-linecap="round" />
+              <path d="M60 30L36 66" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" />
+            </svg>
+            <h2 style="font-size: 28px; font-weight: 800; color: #fff; margin-bottom: 8px;">Divide & Rule</h2>
+            <p style="font-size: 14px; color: var(--text-muted);">Never pay more than your share.<br/>Just enjoy the journey.</p>
+          </div>
+        </div>
+
+        <!-- 2. WELCOME SCREEN -->
+        <div class="view-container hidden" id="view-welcome" style="justify-content: space-between; padding: 40px 24px 24px 24px;">
+          <div style="text-align: center; margin-top: 30px;">
+            <svg width="80" height="80" viewBox="0 0 96 96" fill="none" style="margin-bottom: 20px;">
+              <path d="M26 8h44c14 0 20 6 20 20v40c0 14-6 20-20 20H26C12 88 6 82 6 68V28C6 14 12 8 26 8z" fill="#0D3528" stroke="rgba(255, 255, 255, 0.15)" stroke-width="2" />
+              <path d="M30 38C30 28 38 22 48 22H52" stroke="#00E599" stroke-width="5" stroke-linecap="round" />
+              <path d="M66 58C66 68 58 74 48 74H44" stroke="#00E599" stroke-width="5" stroke-linecap="round" />
+              <path d="M60 30L36 66" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" />
+            </svg>
+            <h2 style="font-size: 28px; font-weight: 800; color: #fff; margin-bottom: 8px;">Divide & Rule</h2>
+            <p style="font-size: 14px; color: var(--text-muted); line-height: 20px;">Never pay more than your share.<br/>Travel together, split cleanly.</p>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+            <button class="btn btn-primary" onclick="showScreen('signup')">Create Free Account ➔</button>
+            <button class="btn btn-secondary" onclick="showScreen('login')">Log In to Account</button>
+          </div>
+        </div>
+
+        <!-- 2A. SIGN UP SCREEN -->
+        <div class="view-container hidden" id="view-signup" style="padding: 24px 20px; overflow-y: auto;">
+          <div style="margin-bottom: 20px;">
+            <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(0, 229, 153, 0.12); border: 1px solid rgba(0, 229, 153, 0.3); padding: 4px 10px; border-radius: 9999px; font-size: 10px; font-weight: 800; color: var(--accent-mint); margin-bottom: 12px;">
+              ✦ CREATE ACCOUNT
+            </div>
+            <h2 style="font-size: 26px; font-weight: 800; color: #fff; margin-bottom: 6px; letter-spacing: -0.5px;">Join Divide & Rule</h2>
+            <p style="font-size: 13px; color: var(--text-muted); line-height: 18px;">
+              Split travel and everyday expenses with friends fairly. Zero awkward math.
+            </p>
+          </div>
+
+          <div id="signup-error-box" class="hidden" style="background: rgba(255, 92, 92, 0.15); border: 1px solid rgba(255, 92, 92, 0.35); border-radius: 12px; padding: 10px 14px; color: #FFA285; font-size: 12px; font-weight: 600; margin-bottom: 14px;"></div>
+
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">FULL NAME</label>
+              <div class="form-input-wrap">
+                <span class="form-input-icon">👤</span>
+                <input class="form-input" id="signup-name" placeholder="e.g. Adarsh Goutam" />
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">UNIQUE USERNAME</label>
+              <div class="form-input-wrap">
+                <span class="form-input-icon" style="color: var(--accent-mint); font-weight: 800;">@</span>
+                <input class="form-input" id="signup-username" placeholder="adarshg" />
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">EMAIL ADDRESS</label>
+              <div class="form-input-wrap">
+                <span class="form-input-icon">✉️</span>
+                <input class="form-input" id="signup-email" placeholder="adarsh@gmail.com" type="email" />
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">PASSWORD</label>
+              <div class="form-input-wrap">
+                <span class="form-input-icon">🔒</span>
+                <input class="form-input" id="signup-password" placeholder="At least 6 characters" type="password" />
+              </div>
+            </div>
+
+            <button class="btn btn-primary" id="btn-submit-signup" onclick="handleSignupSubmit()" style="margin-top: 6px; height: 50px;">
+              Create Account ➔
+            </button>
+
+            <button type="button" onclick="fillDemoSignup()" style="background: transparent; border: 1px dashed rgba(0, 229, 153, 0.4); color: var(--accent-mint); font-size: 11px; font-weight: 700; padding: 8px; border-radius: 10px; cursor: pointer;">
+              ⚡ Fill Quick Sample Data
+            </button>
+          </div>
+
+          <div style="text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-muted);">
+            Already have an account? 
+            <span onclick="showScreen('login')" style="color: var(--accent-mint); font-weight: 700; cursor: pointer; text-decoration: underline;">Log In</span>
+          </div>
+        </div>
+
+        <!-- 2B. LOG IN SCREEN -->
+        <div class="view-container hidden" id="view-login" style="padding: 24px 20px; overflow-y: auto;">
+          <div style="margin-bottom: 24px;">
+            <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(0, 229, 153, 0.12); border: 1px solid rgba(0, 229, 153, 0.3); padding: 4px 10px; border-radius: 9999px; font-size: 10px; font-weight: 800; color: var(--accent-mint); margin-bottom: 12px;">
+              ✦ SIGN IN
+            </div>
+            <h2 style="font-size: 26px; font-weight: 800; color: #fff; margin-bottom: 6px; letter-spacing: -0.5px;">Welcome Back</h2>
+            <p style="font-size: 13px; color: var(--text-muted); line-height: 18px;">
+              Sign in with your @username or email to manage trips and settle balances.
+            </p>
+          </div>
+
+          <div id="login-error-box" class="hidden" style="background: rgba(255, 92, 92, 0.15); border: 1px solid rgba(255, 92, 92, 0.35); border-radius: 12px; padding: 10px 14px; color: #FFA285; font-size: 12px; font-weight: 600; margin-bottom: 14px;"></div>
+
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">EMAIL OR @USERNAME</label>
+              <div class="form-input-wrap">
+                <span class="form-input-icon">👤</span>
+                <input class="form-input" id="login-identifier" placeholder="e.g. @adarshg or adarsh@gmail.com" />
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">PASSWORD</label>
+              <div class="form-input-wrap">
+                <span class="form-input-icon">🔒</span>
+                <input class="form-input" id="login-password" placeholder="••••••••••••" type="password" />
+              </div>
+            </div>
+
+            <button class="btn btn-primary" id="btn-submit-login" onclick="handleLoginSubmit()" style="margin-top: 6px; height: 50px;">
+              Log In ➔
+            </button>
+
+            <button type="button" onclick="fillDemoLogin()" style="background: transparent; border: 1px dashed rgba(0, 229, 153, 0.4); color: var(--accent-mint); font-size: 11px; font-weight: 700; padding: 8px; border-radius: 10px; cursor: pointer;">
+              ⚡ Fill Demo Account (@adarshg)
+            </button>
+          </div>
+
+          <div style="text-align: center; margin-top: 24px; font-size: 13px; color: var(--text-muted);">
+            Don't have an account? 
+            <span onclick="showScreen('signup')" style="color: var(--accent-mint); font-weight: 700; cursor: pointer; text-decoration: underline;">Create Account</span>
+          </div>
+        </div>
+
+        <!-- 3. HOME DASHBOARD (PRESERVED 100% INTACT) -->
+        <div class="view-container hidden" id="view-home">
+          <!-- Header -->
+          <div class="dash-header">
+            <div class="dash-brand">
+              <svg width="34" height="34" viewBox="0 0 96 96" fill="none">
+                <path d="M26 8h44c14 0 20 6 20 20v40c0 14-6 20-20 20H26C12 88 6 82 6 68V28C6 14 12 8 26 8z" fill="#0D3528" stroke="rgba(255, 255, 255, 0.15)" stroke-width="2" />
+                <path d="M30 38C30 28 38 22 48 22H52" stroke="#00E599" stroke-width="5" stroke-linecap="round" />
+                <path d="M66 58C66 68 58 74 48 74H44" stroke="#00E599" stroke-width="5" stroke-linecap="round" />
+                <path d="M60 30L36 66" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" />
+              </svg>
+              <div>
+                <div style="font-size: 18px; font-weight: 800; color: #fff;">Divide & Rule</div>
+                <div style="font-size: 11px; color: var(--text-muted);">Never pay more than your share.</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <div class="back-btn" style="width: 34px; height: 34px;" title="Notifications">🔔</div>
+              <div class="back-btn" id="user-avatar-btn" onclick="handleLogoutOrProfile()" title="Click to switch user / log out" style="width: 34px; height: 34px; background: #134737; color: #fff; font-weight: 800; cursor: pointer;">AG</div>
+            </div>
+          </div>
+
+          <!-- 3 Stats Section (Dynamic Live MongoDB Data) -->
+          <div class="stats-row">
+            <div class="stat-card" onclick="showScreen('friends')" style="cursor: pointer;">
+              <div style="font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">👥 Friends</div>
+              <div id="stat-friends-value" style="font-size: 15px; font-weight: 800; color: #fff; margin-top: 4px;">0 Active</div>
+              <div id="stat-friends-sub" style="font-size: 9px; color: var(--text-dim); margin-top: 2px;">Mutual Friends</div>
+            </div>
+            <div class="stat-card">
+              <div style="font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">↙ Incoming</div>
+              <div id="stat-incoming-value" style="font-size: 15px; font-weight: 800; color: var(--accent-mint); margin-top: 4px;">+₹0.00</div>
+              <div style="font-size: 9px; color: var(--text-dim); margin-top: 2px;">Owed to you</div>
+            </div>
+            <div class="stat-card">
+              <div style="font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">↗ Outgoing</div>
+              <div id="stat-outgoing-value" style="font-size: 15px; font-weight: 800; color: #FFA285; margin-top: 4px;">-₹0.00</div>
+              <div style="font-size: 9px; color: var(--text-dim); margin-top: 2px;">You owe</div>
+            </div>
+          </div>
+
+          <!-- 3. Dynamic Recent Trips Section (MongoDB Atlas) -->
+          <div style="margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <div style="font-size: 15px; font-weight: 800; color: #fff;">Your Recent Trips</div>
+              <div onclick="showScreen('trips')" style="font-size: 11px; font-weight: 700; color: var(--accent-mint); cursor: pointer;">View All →</div>
+            </div>
+            <div id="home-recent-trips-container" style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="color: var(--text-muted); font-size: 11px; padding: 8px;">Loading trips from MongoDB Atlas...</div>
+            </div>
+          </div>
+
+          <!-- Section Split & Track -->
+          <div style="margin-bottom: 12px;">
+            <div style="font-size: 16px; font-weight: 800; color: #fff;">Split & Track</div>
+            <div style="font-size: 11px; color: var(--text-muted);">Choose your experience</div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 18px;">
+            <!-- Card 1: Trip Split -->
+            <div class="hero-card trip-card" onclick="showScreen('trips')" title="Click to open Trips Hub">
+              <div style="flex: 1; padding-right: 12px;">
+                <div class="hero-badge">Group Experience</div>
+                <div style="font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 4px;">Trip Split</div>
+                <div style="font-size: 12px; color: var(--text-muted); line-height: 17px;">Create a trip, invite friends, and split every expense effortlessly.</div>
+              </div>
+              <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                <svg width="56" height="56" viewBox="0 0 72 72" fill="none">
+                  <circle cx="48" cy="24" r="7" fill="#FFDE69" opacity="0.9" />
+                  <path d="M26 24L44 54H8L26 24Z" fill="#134737" />
+                  <path d="M42 16L64 54H20L42 16Z" fill="#00E599" opacity="0.85" />
+                  <path d="M42 16L47 24L42 26L37 24L42 16Z" fill="#fff" />
+                </svg>
+                <div class="arrow-circle">→</div>
+              </div>
+            </div>
+
+            <!-- Card 2: Quick Split -->
+            <div class="hero-card" onclick="alert('Action: Quick Split')">
+              <div style="flex: 1; padding-right: 12px;">
+                <div class="hero-badge" style="color: #4EFEB3;">Everyday Sharing</div>
+                <div style="font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 4px;">Quick Split</div>
+                <div style="font-size: 12px; color: var(--text-muted); line-height: 17px;">Split a single expense instantly without creating a trip.</div>
+              </div>
+              <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                <svg width="56" height="56" viewBox="0 0 72 72" fill="none">
+                  <rect x="22" y="28" width="26" height="22" rx="6" fill="#134737" stroke="#00E599" stroke-width="2" />
+                  <path d="M48 33C52 33 54 35 54 39C54 43 52 45 48 45" stroke="#00E599" stroke-width="2" stroke-linecap="round" />
+                  <path d="M16 52C26 55 42 55 52 52" stroke="#4EFEB3" stroke-width="2" stroke-linecap="round" />
+                  <circle cx="20" cy="22" r="6" fill="#00E599" />
+                </svg>
+                <div class="arrow-circle">→</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Daily Thought Card -->
+          <div class="thought-card">
+            <div style="font-size: 10px; font-weight: 800; color: var(--accent-mint); margin-bottom: 6px;">✦ DAILY THOUGHT</div>
+            <div style="font-size: 13px; font-style: italic; color: #fff; line-height: 20px; margin-bottom: 6px;">"Good friends split expenses. Great friends make better memories."</div>
+            <div style="font-size: 10px; color: var(--text-muted);">— Divide & Rule Daily</div>
+          </div>
+        </div>
+
+        <!-- 4. TRIPS HUB SCREEN -->
+        <div class="view-container hidden" id="view-trips">
+          <div class="app-bar">
+            <div class="back-btn" onclick="showScreen('home')">←</div>
+            <div style="text-align: center;">
+              <div style="font-size: 17px; font-weight: 800; color: #fff;">Trips Hub</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Split journeys with friends</div>
+            </div>
+            <div class="back-btn" onclick="alert('Search')">🔍</div>
+          </div>
+
+          <!-- Hero Banner -->
+          <div class="hub-hero">
+            <div style="width: 100%; height: 90px; background: #072017; position: relative; overflow: hidden;">
+              <svg width="100%" height="90" viewBox="0 0 340 90" fill="none" preserveAspectRatio="none">
+                <circle cx="260" cy="25" r="14" fill="#FFDE69" opacity="0.9" />
+                <path d="M40 90L110 30L180 90H40Z" fill="#17503D" opacity="0.6" />
+                <path d="M150 90L220 20L290 90H150Z" fill="#00E599" opacity="0.4" />
+                <path d="M0 90L65 45L130 90H0Z" fill="#1C5E4A" />
+              </svg>
+            </div>
+            <div style="padding: 14px;">
+              <div class="hero-badge">Adventure Awaits</div>
+              <div style="font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 4px;">"The wait is over. Your next adventure starts here."</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Create a trip, invite your friends, and let Divide & Rule handle every shared expense.</div>
+            </div>
+          </div>
+
+          <!-- Primary Button to Create Trip -->
+          <button class="btn btn-primary" onclick="showScreen('create')" style="height: 52px; margin-bottom: 20px; font-size: 15px;">
+            + Create New Trip
+          </button>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div style="font-size: 16px; font-weight: 800; color: #fff;">Your Trips</div>
+            <div id="trips-count-badge" style="font-size: 11px; background: rgba(255,255,255,0.08); padding: 3px 8px; border-radius: 9999px; color: var(--text-muted);">0 Trips</div>
+          </div>
+
+          <!-- Dynamic Trips Container (Loaded from MongoDB Atlas) -->
+          <div id="trips-list-container" style="display: flex; flex-direction: column; gap: 10px;"></div>
+        </div>
+
+        <!-- 5. CREATE NEW TRIP (ACTIVE GUIDED FLOW) -->
+        <div class="view-container" id="view-create" style="padding-bottom: 80px;">
+          <!-- Top App Bar -->
+          <div class="app-bar">
+            <div class="back-btn" onclick="handleCreateBack()">←</div>
+            <div style="text-align: center;">
+              <div style="font-size: 16px; font-weight: 800; color: #fff;">Create New Trip</div>
+              <div style="font-size: 11px; color: var(--text-muted);" id="create-step-sub">Step 1 of 3: Details</div>
+            </div>
+            <div style="font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer;" onclick="showScreen('trips')">Cancel</div>
+          </div>
+
+          <!-- Stepper: ●━━○━━○ -->
+          <div class="stepper-bar">
+            <div class="stepper-nodes-row">
+              <div class="step-node-wrap" onclick="goToStep(1)">
+                <div class="step-node-circle active" id="node-1">1</div>
+                <div class="step-node-label active" id="label-1">Details</div>
+              </div>
+              <div class="step-line" id="line-1"></div>
+              <div class="step-node-wrap" onclick="goToStep(2)">
+                <div class="step-node-circle" id="node-2">2</div>
+                <div class="step-node-label" id="label-2">Members</div>
+              </div>
+              <div class="step-line" id="line-2"></div>
+              <div class="step-node-wrap" onclick="goToStep(3)">
+                <div class="step-node-circle" id="node-3">3</div>
+                <div class="step-node-label" id="label-3">Review</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hero Banner -->
+          <div class="hub-hero" style="margin-bottom: 16px;">
+            <div style="padding: 16px;">
+              <div class="hero-badge">Start a New Adventure</div>
+              <div style="font-size: 14px; font-weight: 800; color: #fff; margin-bottom: 4px;">Every unforgettable journey begins with a plan.</div>
+              <div style="font-size: 11px; color: var(--text-muted); line-height: 16px;">Create your trip, invite your friends, and let Divide & Rule handle the expenses.</div>
+            </div>
+          </div>
+
+          <!-- STEP 1 CONTAINER -->
+          <div id="create-step-1">
+            <div class="form-group">
+              <label class="form-label">TRIP NAME *</label>
+              <div class="form-input-wrap">
+                <span class="form-input-icon">🏖️</span>
+                <input type="text" class="form-input" id="input-trip-name" value="Goa Escape 2026" placeholder="e.g. Goa Escape 2026" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">DESTINATION *</label>
+              <div class="form-input-wrap">
+                <span class="form-input-icon">📍</span>
+                <input type="text" class="form-input" id="input-trip-dest" value="Goa, India" placeholder="e.g. Goa, India" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">DATE RANGE *</label>
+              <div class="dates-grid">
+                <div class="form-input-wrap">
+                  <span class="form-input-icon">📅</span>
+                  <input type="text" class="form-input" id="input-start-date" value="12 Oct 2026" />
+                </div>
+                <div class="form-input-wrap">
+                  <span class="form-input-icon">📅</span>
+                  <input type="text" class="form-input" id="input-end-date" value="16 Oct 2026" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">CURRENCY *</label>
+              <div class="currency-grid">
+                <div class="curr-pill active" onclick="setCurrency(this, 'INR')">₹ INR</div>
+                <div class="curr-pill" onclick="setCurrency(this, 'USD')">$ USD</div>
+                <div class="curr-pill" onclick="setCurrency(this, 'EUR')">€ EUR</div>
+                <div class="curr-pill" onclick="setCurrency(this, 'GBP')">£ GBP</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 2 CONTAINER (MEMBERS) -->
+          <div id="create-step-2" class="hidden">
+            <div style="font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 4px;">Who's coming?</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 14px;">Search for registered users or pick from your friends list.</div>
+
+            <div style="display: flex; gap: 8px; margin-bottom: 14px; align-items: center;">
+              <div class="form-input-wrap" style="flex: 1;">
+                <input type="text" class="form-input" id="new-member-input" placeholder="Search by @username..." onkeypress="if(event.key==='Enter') addMember()" />
+              </div>
+            </div>
+
+            <div style="background: rgba(10, 43, 32, 0.5); border-radius: 18px; padding: 14px; border: 1px solid rgba(255,255,255,0.08);">
+              <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 10px;" id="members-counter">0 FRIENDS ADDED</div>
+              <div class="member-chips-wrap" id="members-list">
+                <!-- Members added via search will appear here -->
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 3 CONTAINER (REVIEW & COVER) -->
+          <div id="create-step-3" class="hidden">
+            <div class="form-group">
+              <label class="form-label">TRIP COVER (OPTIONAL)</label>
+              <div class="covers-row">
+                <div class="cover-box active" onclick="setCover(this, 'Beach')">
+                  <div class="cover-box-icon">🏖️</div>
+                  <div class="cover-box-name">Beach</div>
+                </div>
+                <div class="cover-box" onclick="setCover(this, 'Mountain')">
+                  <div class="cover-box-icon">🏔️</div>
+                  <div class="cover-box-name">Mountain</div>
+                </div>
+                <div class="cover-box" onclick="setCover(this, 'Roadtrip')">
+                  <div class="cover-box-icon">🚗</div>
+                  <div class="cover-box-name">Roadtrip</div>
+                </div>
+                <div class="cover-box" onclick="setCover(this, 'City')">
+                  <div class="cover-box-icon">🌆</div>
+                  <div class="cover-box-name">City</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">NOTES (OPTIONAL)</label>
+              <div class="form-input-wrap" style="height: 70px; align-items: flex-start; padding-top: 8px;">
+                <textarea class="form-input" id="input-notes" style="width: 100%; height: 100%; resize: none;" placeholder="Weekend trip with college friends...">Weekend getaway with college friends to explore South Goa beaches and shacks.</textarea>
+              </div>
+            </div>
+
+            <div class="review-box">
+              <div style="font-size: 14px; font-weight: 800; color: #fff; margin-bottom: 8px;">Trip Summary</div>
+              <div class="review-line">
+                <span style="color: var(--text-muted);">Trip Name</span>
+                <span style="color: #fff; font-weight: 700;" id="rev-name">Goa Escape 2026</span>
+              </div>
+              <div class="review-line">
+                <span style="color: var(--text-muted);">Destination</span>
+                <span style="color: #fff; font-weight: 700;" id="rev-dest">Goa, India</span>
+              </div>
+              <div class="review-line">
+                <span style="color: var(--text-muted);">Date Range</span>
+                <span style="color: #fff; font-weight: 700;" id="rev-dates">12 Oct – 16 Oct 2026</span>
+              </div>
+              <div class="review-line" style="border-bottom: none;">
+                <span style="color: var(--text-muted);">Members</span>
+                <span style="color: var(--accent-mint); font-weight: 800;" id="rev-members">4 Friends</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sticky Bottom CTA Button -->
+          <div class="sticky-bottom-action">
+            <button class="btn btn-primary" id="btn-step-next" onclick="handleStepNext()" style="height: 52px; font-size: 15px;">
+              Continue to Members →
+            </button>
+          </div>
+        </div>
+
+        <!-- 8. FRIENDS & CIRCLES SCREEN (LIVE MONGODB SYNC) -->
+        <div class="view-container hidden" id="view-friends" style="padding: 16px 18px; overflow-y: auto; padding-bottom: 90px;">
+          <!-- Top App Bar -->
+          <div class="app-bar">
+            <div class="back-btn" onclick="showScreen('home')" title="Back to Home">←</div>
+            <div style="text-align: center;">
+              <div style="font-size: 16px; font-weight: 800; color: #fff;">Friends & Circles</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Manage your expense circle</div>
+            </div>
+            <div class="back-btn" onclick="refreshFriendsFromBackend()" title="Refresh" style="color: var(--accent-mint); font-size: 14px;">↻</div>
+          </div>
+
+          <!-- Toast Banner -->
+          <div id="friends-notification-banner" class="hidden" style="margin-bottom: 12px; padding: 10px 14px; border-radius: 12px; font-size: 12px; font-weight: 700;"></div>
+
+          <!-- Tab Switcher -->
+          <div style="display: flex; gap: 6px; margin-bottom: 14px; background: rgba(0,0,0,0.25); padding: 4px; border-radius: 16px;">
+            <button class="f-tab-btn active" id="f-tab-btn-friends" onclick="switchFriendsTab('friends')">
+              My Friends (<span id="f-badge-friends">0</span>)
+            </button>
+            <button class="f-tab-btn" id="f-tab-btn-requests" onclick="switchFriendsTab('requests')">
+              Requests (<span id="f-badge-requests">0</span>)
+            </button>
+            <button class="f-tab-btn" id="f-tab-btn-search" onclick="switchFriendsTab('search')">
+              Find Users
+            </button>
+          </div>
+
+          <!-- SUB-TAB 1: MY FRIENDS -->
+          <div id="f-tab-friends">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <div style="font-size: 12px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.5px;">All Connections</div>
+              <button onclick="switchFriendsTab('search')" style="background: transparent; border: none; color: var(--accent-mint); font-size: 11px; font-weight: 700; cursor: pointer;">+ Add New</button>
+            </div>
+            <div id="f-friends-list-container" style="display: flex; flex-direction: column; gap: 10px;">
+              <div style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 24px;">Loading friends from MongoDB Atlas...</div>
+            </div>
+          </div>
+
+          <!-- SUB-TAB 2: REQUESTS -->
+          <div id="f-tab-requests" class="hidden">
+            <div style="font-size: 12px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Incoming Requests</div>
+            <div id="f-incoming-container" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px;">
+              <div style="color: var(--text-muted); font-size: 11px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 12px; text-align: center;">No incoming requests</div>
+            </div>
+
+            <div style="font-size: 12px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Sent Requests</div>
+            <div id="f-outgoing-container" style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="color: var(--text-muted); font-size: 11px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 12px; text-align: center;">No sent requests</div>
+            </div>
+          </div>
+
+          <!-- SUB-TAB 3: FIND USERS -->
+          <div id="f-tab-search" class="hidden">
+            <div style="position: relative; margin-bottom: 12px;">
+              <input id="f-search-input" onkeyup="debounceFriendSearch()" placeholder="Search registered user by @username..." style="width: 100%; height: 44px; background: rgba(10, 43, 32, 0.8); border: 1.5px solid rgba(0, 229, 153, 0.35); border-radius: 14px; padding: 0 40px 0 14px; color: #fff; font-size: 13px; outline: none; box-sizing: border-box;" />
+              <div style="position: absolute; right: 12px; top: 12px; cursor: pointer; color: var(--text-muted);" onclick="executeFriendSearch()">🔍</div>
+            </div>
+
+            <div id="f-search-results-container" style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="background: rgba(0, 229, 153, 0.06); border: 1px dashed rgba(0, 229, 153, 0.25); border-radius: 14px; padding: 16px; text-align: center;">
+                <div style="font-size: 12px; font-weight: 700; color: var(--accent-mint); margin-bottom: 4px;">💡 Discover Peers</div>
+                <div style="font-size: 11px; color: var(--text-muted);">Search for users like <span style="color: #fff; font-weight: 700; cursor: pointer; text-decoration: underline;" onclick="document.getElementById('f-search-input').value='rahul123'; executeFriendSearch();">@rahul123</span> or <span style="color: #fff; font-weight: 700; cursor: pointer; text-decoration: underline;" onclick="document.getElementById('f-search-input').value='mayap200'; executeFriendSearch();">@mayap200</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 9. TRIP DETAILS SCREEN (LIVE EXPENSES, EQUAL/PCT/EXACT SPLITS & GREEDY SETTLE UP) -->
+        <div class="view-container hidden" id="view-trip-details" style="padding: 16px 18px; overflow-y: auto; padding-bottom: 90px;">
+          <!-- Top App Bar -->
+          <div class="app-bar">
+            <div class="back-btn" onclick="showScreen('trips')" title="Back to Trips Hub">←</div>
+            <div style="text-align: center; flex: 1; margin: 0 8px;">
+              <div id="dt-trip-title" style="font-size: 16px; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Trip Details</div>
+              <div id="dt-trip-dest" style="font-size: 11px; color: var(--text-muted);">Shared Trip Ledger</div>
+            </div>
+            <button onclick="openAddExpenseModal()" style="background: var(--accent-mint); color: #051B14; border: none; font-size: 12px; font-weight: 800; padding: 6px 12px; border-radius: 10px; cursor: pointer;">
+              + Add
+            </button>
+          </div>
+
+          <!-- Notification Toast -->
+          <div id="dt-notification-banner" class="hidden" style="margin-bottom: 12px; padding: 10px 14px; border-radius: 12px; font-size: 12px; font-weight: 700;"></div>
+
+          <!-- Hero Spend & Balance Card -->
+          <div style="background: rgba(13, 53, 40, 0.65); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 16px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 9px; font-weight: 800; color: var(--text-muted); letter-spacing: 0.6px; text-transform: uppercase;">Total Trip Spend</div>
+              <div id="dt-total-spend" style="font-size: 24px; font-weight: 900; color: #fff; margin: 2px 0;">₹0</div>
+              <div id="dt-total-exp-sub" style="font-size: 11px; color: var(--text-muted);">0 expenses recorded</div>
+            </div>
+            <div style="background: rgba(10, 43, 32, 0.8); padding: 10px 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.06); text-align: right;">
+              <div style="font-size: 9px; font-weight: 800; color: var(--text-muted); letter-spacing: 0.6px; text-transform: uppercase;">Your Balance</div>
+              <div id="dt-my-balance" style="font-size: 18px; font-weight: 800; color: var(--accent-mint);">Settled</div>
+              <div id="dt-my-balance-sub" style="font-size: 10px; color: var(--text-muted);">All clear</div>
+            </div>
+          </div>
+
+          <!-- PENDING PEER SETTLEMENT APPROVAL ALERTS -->
+          <div id="dt-pending-settlements-banner" class="hidden" style="margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px;"></div>
+
+          <!-- PENDING BILL SPLIT APPROVAL ALERTS -->
+          <div id="dt-pending-splits-banner" class="hidden" style="margin-bottom: 14px; display: flex; flex-direction: column; gap: 8px;"></div>
+
+          <!-- 3 Segmented Tabs: Expenses | Balances | Settle Up -->
+          <div style="display: flex; gap: 6px; margin-bottom: 14px; background: rgba(0,0,0,0.25); padding: 4px; border-radius: 16px;">
+            <button class="f-tab-btn active" id="dt-tab-btn-exp" onclick="switchTripDetailsTab('expenses')">
+              Expenses (<span id="dt-badge-exp">0</span>)
+            </button>
+            <button class="f-tab-btn" id="dt-tab-btn-bal" onclick="switchTripDetailsTab('balances')">
+              Balances (<span id="dt-badge-bal">0</span>)
+            </button>
+            <button class="f-tab-btn" id="dt-tab-btn-settle" onclick="switchTripDetailsTab('settlements')">
+              Settle Up ⚡ (<span id="dt-badge-settle">0</span>)
+            </button>
+          </div>
+
+          <!-- SUB-TAB 1: EXPENSES -->
+          <div id="dt-view-expenses">
+            <!-- Category Filter Pills -->
+            <div style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 10px;">
+              <button class="f-tab-btn active" id="dt-cat-ALL" onclick="filterExpensesByCategory('ALL')" style="flex: initial; padding: 5px 12px;">All</button>
+              <button class="f-tab-btn" id="dt-cat-FOOD" onclick="filterExpensesByCategory('FOOD')" style="flex: initial; padding: 5px 10px;">🍔 Food</button>
+              <button class="f-tab-btn" id="dt-cat-TRAVEL" onclick="filterExpensesByCategory('TRAVEL')" style="flex: initial; padding: 5px 10px;">✈️ Travel</button>
+              <button class="f-tab-btn" id="dt-cat-STAY" onclick="filterExpensesByCategory('STAY')" style="flex: initial; padding: 5px 10px;">🏨 Stay</button>
+              <button class="f-tab-btn" id="dt-cat-ACTIVITIES" onclick="filterExpensesByCategory('ACTIVITIES')" style="flex: initial; padding: 5px 10px;">🎟️ Activities</button>
+              <button class="f-tab-btn" id="dt-cat-SHOPPING" onclick="filterExpensesByCategory('SHOPPING')" style="flex: initial; padding: 5px 10px;">🛍️ Shopping</button>
+              <button class="f-tab-btn" id="dt-cat-OTHER" onclick="filterExpensesByCategory('OTHER')" style="flex: initial; padding: 5px 10px;">💳 Other</button>
+            </div>
+
+            <div id="dt-expenses-container" style="display: flex; flex-direction: column; gap: 10px;">
+              <div style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 24px;">Loading trip expenses from MongoDB Atlas...</div>
+            </div>
+          </div>
+
+          <!-- SUB-TAB 2: BALANCES -->
+          <div id="dt-view-balances" class="hidden">
+            <div style="font-size: 12px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Individual Member Net Balances</div>
+            <div id="dt-balances-container" style="display: flex; flex-direction: column; gap: 10px;"></div>
+          </div>
+
+          <!-- SUB-TAB 3: SETTLEMENT PLAN & ONE-TAP SETTLE UP -->
+          <div id="dt-view-settlements" class="hidden">
+            <div style="background: rgba(0, 229, 153, 0.08); border: 1px solid rgba(0, 229, 153, 0.25); border-radius: 14px; padding: 12px 14px; margin-bottom: 14px;">
+              <div style="font-size: 12px; font-weight: 800; color: var(--accent-mint); margin-bottom: 3px;">⚡ Greedy Debt Minimization</div>
+              <div style="font-size: 11px; color: var(--text-muted); line-height: 16px;">
+                Simplifies group IOUs into the minimum number of direct payments. Tap <strong>"Settle Up"</strong> to instantly zero out balances.
+              </div>
+            </div>
+            <div id="dt-settlements-container" style="display: flex; flex-direction: column; gap: 12px;"></div>
+          </div>
+        </div>
+
+        <!-- ADD EXPENSE MODAL OVERLAY -->
+        <div id="modal-add-expense" class="hidden" style="position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 100; display: flex; flex-direction: column; justify-content: flex-end;">
+          <div style="background: #08251C; border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 20px; border: 1px solid rgba(255,255,255,0.12); max-height: 85%; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+              <div style="font-size: 16px; font-weight: 800; color: #fff;">Add Trip Expense</div>
+              <div onclick="closeAddExpenseModal()" style="font-size: 18px; color: var(--text-muted); cursor: pointer; padding: 4px;">✕</div>
+            </div>
+
+            <!-- Title -->
+            <div class="form-group" style="margin-bottom: 10px;">
+              <label class="form-label">EXPENSE TITLE</label>
+              <input id="inp-exp-title" class="form-input" placeholder="e.g. Seafood Dinner, Uber, Resort Villa" />
+            </div>
+
+            <!-- Amount -->
+            <div class="form-group" style="margin-bottom: 10px;">
+              <label class="form-label">TOTAL AMOUNT (₹)</label>
+              <input id="inp-exp-amount" class="form-input" type="number" placeholder="0.00" onkeyup="recalculateModalSplits()" style="font-size: 18px; font-weight: 800; color: var(--accent-mint);" />
+            </div>
+
+            <!-- Category -->
+            <div class="form-group" style="margin-bottom: 10px;">
+              <label class="form-label">CATEGORY</label>
+              <div style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px;" id="modal-cat-row">
+                <button class="f-tab-btn active" onclick="selectModalCategory('FOOD', this)">🍔 Food</button>
+                <button class="f-tab-btn" onclick="selectModalCategory('TRAVEL', this)">✈️ Travel</button>
+                <button class="f-tab-btn" onclick="selectModalCategory('STAY', this)">🏨 Stay</button>
+                <button class="f-tab-btn" onclick="selectModalCategory('ACTIVITIES', this)">🎟️ Activities</button>
+                <button class="f-tab-btn" onclick="selectModalCategory('SHOPPING', this)">🛍️ Shopping</button>
+                <button class="f-tab-btn" onclick="selectModalCategory('OTHER', this)">💳 Other</button>
+              </div>
+            </div>
+
+            <!-- Paid By -->
+            <div class="form-group" style="margin-bottom: 10px;">
+              <label class="form-label">WHO PAID?</label>
+              <select id="inp-exp-payer" class="form-input" style="height: 42px; background: #0A2B20; color: #fff;">
+              </select>
+            </div>
+
+            <!-- Split Mode Switcher -->
+            <div class="form-group" style="margin-bottom: 10px;">
+              <label class="form-label">SPLIT METHOD</label>
+              <div style="display: flex; gap: 4px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 12px;">
+                <button class="f-tab-btn active" id="btn-split-equal" onclick="selectSplitMode('EQUAL')">Equal (=)</button>
+                <button class="f-tab-btn" id="btn-split-pct" onclick="selectSplitMode('PERCENTAGE')">Percentage (%)</button>
+                <button class="f-tab-btn" id="btn-split-exact" onclick="selectSplitMode('EXACT')">Exact Share (₹)</button>
+              </div>
+            </div>
+
+            <!-- Member Allocation Breakdown -->
+            <div class="form-group" style="margin-bottom: 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label class="form-label" style="margin-bottom: 0;">MEMBERS INVOLVED</label>
+                <span id="modal-split-validation-tag" style="font-size: 10px; font-weight: 700; color: var(--accent-mint);"></span>
+              </div>
+              <div id="modal-split-members-container" style="display: flex; flex-direction: column; gap: 8px;"></div>
+            </div>
+
+            <button class="btn btn-primary" id="btn-save-trip-exp" onclick="submitTripExpenseFromUI()" style="height: 48px; font-size: 14px;">
+              + Add Expense to Trip
+            </button>
+          </div>
+        </div>
+
+        <!-- SETTLE UP CONFIRMATION MODAL OVERLAY -->
+        <div id="modal-settle-confirm" class="hidden" style="position: absolute; inset: 0; background: rgba(0,0,0,0.85); z-index: 105; display: flex; align-items: center; justify-content: center; padding: 20px;">
+          <div style="background: #08251C; border-radius: 20px; padding: 22px; border: 1.5px solid rgba(0, 229, 153, 0.35); width: 100%; max-width: 320px; text-align: center;">
+            <div style="font-size: 17px; font-weight: 900; color: #fff; margin-bottom: 4px;">Record Payment & Request Approval</div>
+            <div style="font-size: 11px; color: var(--text-muted); line-height: 15px; margin-bottom: 12px;">
+              Select how you paid. Your friend will receive a verification alert to confirm and zero out the balance.
+            </div>
+
+            <div style="background: rgba(10, 43, 32, 0.8); border-radius: 14px; padding: 12px; margin-bottom: 12px;">
+              <div id="settle-modal-amount" style="font-size: 24px; font-weight: 900; color: var(--accent-mint); margin-bottom: 2px;">₹0</div>
+              <div id="settle-modal-fromto" style="font-size: 11px; color: #fff; font-weight: 700;"></div>
+            </div>
+
+            <!-- Payment Method Chips -->
+            <div style="text-align: left; margin-bottom: 10px;">
+              <label class="form-label" style="font-size: 10px; margin-bottom: 4px;">PAYMENT METHOD</label>
+              <div style="display: flex; gap: 4px; background: rgba(0,0,0,0.25); padding: 3px; border-radius: 10px;">
+                <button class="f-tab-btn active" id="settle-pm-UPI" onclick="selectSettlePaymentMethod('UPI')" style="padding: 6px; font-size: 11px;">📱 UPI</button>
+                <button class="f-tab-btn" id="settle-pm-CASH" onclick="selectSettlePaymentMethod('CASH')" style="padding: 6px; font-size: 11px;">💵 Cash</button>
+                <button class="f-tab-btn" id="settle-pm-BANK_TRANSFER" onclick="selectSettlePaymentMethod('BANK_TRANSFER')" style="padding: 6px; font-size: 11px;">🏦 Bank</button>
+              </div>
+            </div>
+
+            <!-- Transaction Reference / Note -->
+            <div style="text-align: left; margin-bottom: 14px;">
+              <label class="form-label" style="font-size: 10px; margin-bottom: 4px;">TRANSACTION ID / NOTE (OPTIONAL)</label>
+              <input type="text" id="settle-modal-ref" placeholder="e.g. UPI Ref / UTR / Paid at Cafe" class="form-input" style="height: 38px; font-size: 12px; background: #0A2B20; color: #fff;" />
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+              <button onclick="closeSettleModal()" class="f-btn-outline" style="flex: 1; padding: 10px; font-size: 12px;">Cancel</button>
+              <button id="btn-confirm-settle" onclick="executeSettleUpConfirmation()" class="f-btn-primary" style="flex: 1.8; padding: 10px; justify-content: center; font-size: 12px;">Send Request ➔</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating Bottom Dock Navigation -->
+        <div class="floating-dock hidden" id="bottom-dock">
+          <div class="dock-tab" id="dock-home" onclick="showScreen('home')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M3 10L12 3L21 10V20C21 20.5 20.5 21 20 21H15V14H9V21H4C3.5 21 3 20.5 3 20V10Z" />
+            </svg>
+            <span>Home</span>
+          </div>
+
+          <div class="dock-tab" id="dock-trips" onclick="showScreen('trips')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 17H5C3.9 17 3 16.1 3 15V6C3 4.9 3.9 4 5 4H19C20.1 4 21 4.9 21 6V15C21 16.1 20.1 17 19 17Z" />
+              <path d="M16 21H8" />
+              <path d="M12 17V21" />
+            </svg>
+            <span>Trips</span>
+          </div>
+
+          <div class="dock-center-btn" onclick="showScreen('create')">
+            +
+          </div>
+
+          <div class="dock-tab" id="dock-friends" onclick="showScreen('friends')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21V19C17 17.9 16.1 17 15 17H9C7.9 17 7 17.9 7 19V21" />
+              <circle cx="12" cy="11" r="4" />
+            </svg>
+            <span>Friends</span>
+          </div>
+
+          <div class="dock-tab" onclick="alert('Profile Tab')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="7" r="4" />
+              <path d="M4 21C4 17.5 7.5 15 12 15C16.5 15 20 17.5 20 21" />
+            </svg>
+            <span>Profile</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Android Bottom Gesture Bar -->
+      <div class="nav-bar">
+        <div class="nav-pill"></div>
+      </div>
+    </div>
+
+    <!-- Inspector & Interactive Control Sidebar -->
+    <div class="side-panel">
+      <div class="panel-card">
+        <h3>✨ 3-Step Guided Flow Specs</h3>
+        <p style="font-size: 13px; color: #A1BDB3; line-height: 20px; margin-bottom: 12px;">
+          Tested for mobile-first thumb ergonomics, progressive validation, and zero vertical form fatigue.
+        </p>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <button class="action-pill-btn" onclick="goToStep(1)">
+            ✦ Step 1: Trip Details
+          </button>
+          <button class="action-pill-btn" onclick="goToStep(2)">
+            ✦ Step 2: Members & Friends
+          </button>
+          <button class="action-pill-btn" onclick="goToStep(3)">
+            ✦ Step 3: Review & Cover
+          </button>
+        </div>
+      </div>
+
+      <div class="panel-card">
+        <h3>🧭 Screen Navigation Sandbox</h3>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <button class="action-pill-btn" onclick="showScreen('home')">
+            ✦ Open Home Dashboard
+          </button>
+          <button class="action-pill-btn" onclick="showScreen('trips')">
+            ✦ Open Trips Hub
+          </button>
+          <button class="action-pill-btn" onclick="showScreen('create')">
+            ✦ Open Create New Trip
+          </button>
+          <button class="action-pill-btn" onclick="showScreen('friends')">
+            ✦ Open Friends & Circles
+          </button>
+          <button class="action-pill-btn" onclick="showScreen('details')">
+            ✦ Open Trip Details & Splits
+          </button>
+        </div>
+      </div>
+
+      <div class="panel-card">
+        <h3>🎨 Active Design Tokens</h3>
+        <ul style="font-size: 12px; color: #A1BDB3; line-height: 22px; padding-left: 18px;">
+          <li><strong style="color: #fff;">Background:</strong> <code>#051B14</code> Obsidian Green</li>
+          <li><strong style="color: #fff;">Accent:</strong> <code>#00E599</code> Electric Mint</li>
+          <li><strong style="color: #fff;">Progress Stepper:</strong> Glowing <code>●━━○━━○</code> with checkmarks</li>
+          <li><strong style="color: #fff;">Sticky Action:</strong> Dynamic text on bottom button</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? (window.location.port === '5001' ? '' : 'http://localhost:5001')
+      : '';
+    function updateClock() {
+      const now = new Date();
+      const hours = now.getHours().toString().padStart(2, '0');
+      const minutes = now.getMinutes().toString().padStart(2, '0');
+      document.getElementById('current-time').textContent = `${hours}:${minutes}`;
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    let activeStep = 1;
+
+    function showScreen(screen) {
+      const splashView = document.getElementById('view-splash');
+      const welcomeView = document.getElementById('view-welcome');
+      const signupView = document.getElementById('view-signup');
+      const loginView = document.getElementById('view-login');
+      const homeView = document.getElementById('view-home');
+      const tripsView = document.getElementById('view-trips');
+      const createView = document.getElementById('view-create');
+      const friendsView = document.getElementById('view-friends');
+      const detailsView = document.getElementById('view-trip-details');
+      const bottomDock = document.getElementById('bottom-dock');
+      const dockHome = document.getElementById('dock-home');
+      const dockTrips = document.getElementById('dock-trips');
+      const dockFriends = document.getElementById('dock-friends');
+
+      const btnSplash = document.getElementById('btn-splash');
+      const btnWelcome = document.getElementById('btn-welcome');
+      const btnSignup = document.getElementById('btn-signup');
+      const btnLogin = document.getElementById('btn-login');
+      const btnHome = document.getElementById('btn-home');
+      const btnTrips = document.getElementById('btn-trips');
+      const btnCreate = document.getElementById('btn-create');
+      const btnFriends = document.getElementById('btn-friends');
+      const btnDetails = document.getElementById('btn-details');
+
+      [splashView, welcomeView, signupView, loginView, homeView, tripsView, createView, friendsView, detailsView].forEach(v => {
+        if (v) v.classList.add('hidden');
+      });
+      [btnSplash, btnWelcome, btnSignup, btnLogin, btnHome, btnTrips, btnCreate, btnFriends, btnDetails].forEach(b => {
+        if (b) b.classList.remove('active');
+      });
+
+      if (screen === 'splash') {
+        splashView.classList.remove('hidden');
+        bottomDock.classList.add('hidden');
+        if (btnSplash) btnSplash.classList.add('active');
+      } else if (screen === 'welcome') {
+        welcomeView.classList.remove('hidden');
+        bottomDock.classList.add('hidden');
+        if (btnWelcome) btnWelcome.classList.add('active');
+      } else if (screen === 'signup') {
+        signupView.classList.remove('hidden');
+        bottomDock.classList.add('hidden');
+        if (btnSignup) btnSignup.classList.add('active');
+      } else if (screen === 'login') {
+        loginView.classList.remove('hidden');
+        bottomDock.classList.add('hidden');
+        if (btnLogin) btnLogin.classList.add('active');
+      } else if (screen === 'home') {
+        homeView.classList.remove('hidden');
+        bottomDock.classList.remove('hidden');
+        if (btnHome) btnHome.classList.add('active');
+        if (dockHome) dockHome.classList.add('active');
+        if (dockTrips) dockTrips.classList.remove('active');
+        if (dockFriends) dockFriends.classList.remove('active');
+        refreshDashboardFromBackend();
+      } else if (screen === 'trips') {
+        tripsView.classList.remove('hidden');
+        bottomDock.classList.remove('hidden');
+        if (btnTrips) btnTrips.classList.add('active');
+        if (dockTrips) dockTrips.classList.add('active');
+        if (dockHome) dockHome.classList.remove('active');
+        if (dockFriends) dockFriends.classList.remove('active');
+        refreshTripsFromBackend();
+      } else if (screen === 'friends') {
+        friendsView.classList.remove('hidden');
+        bottomDock.classList.remove('hidden');
+        if (btnFriends) btnFriends.classList.add('active');
+        if (dockFriends) dockFriends.classList.add('active');
+        if (dockHome) dockHome.classList.remove('active');
+        if (dockTrips) dockTrips.classList.remove('active');
+        refreshFriendsFromBackend();
+      } else if (screen === 'details') {
+        if (detailsView) detailsView.classList.remove('hidden');
+        bottomDock.classList.remove('hidden');
+        if (btnDetails) btnDetails.classList.add('active');
+        if (dockTrips) dockTrips.classList.add('active');
+        if (dockHome) dockHome.classList.remove('active');
+        if (dockFriends) dockFriends.classList.remove('active');
+        loadActiveTripDetails();
+      } else if (screen === 'create') {
+        createView.classList.remove('hidden');
+        bottomDock.classList.add('hidden');
+        if (btnCreate) btnCreate.classList.add('active');
+      }
+    }
+
+    async function handleSignupSubmit() {
+      const errBox = document.getElementById('signup-error-box');
+      const submitBtn = document.getElementById('btn-submit-signup');
+      errBox.classList.add('hidden');
+      errBox.textContent = '';
+
+      const fullName = document.getElementById('signup-name').value.trim();
+      const username = document.getElementById('signup-username').value.trim().toLowerCase().replace(/^@/, '');
+      const email = document.getElementById('signup-email').value.trim().toLowerCase();
+      const password = document.getElementById('signup-password').value;
+
+      if (!fullName || !username || !email || !password) {
+        errBox.textContent = '⚠️ Please fill in all required fields';
+        errBox.classList.remove('hidden');
+        return;
+      }
+
+      if (username.length < 3) {
+        errBox.textContent = '⚠️ Username must be at least 3 characters';
+        errBox.classList.remove('hidden');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creating Account...';
+
+      try {
+        const response = await fetch(`${API_BASE}/api/auth/signup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fullName, username, email, password }),
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || 'Registration failed');
+        }
+
+        localStorage.setItem('dr_token', data.token);
+        localStorage.setItem('dr_user', JSON.stringify(data.user));
+        updateCurrentUserUI(data.user);
+        alert(`🎉 Welcome @${data.user.username}! Your account is registered on MongoDB Atlas.`);
+        showScreen('home');
+      } catch (err) {
+        console.warn('API signup error:', err.message);
+        errBox.textContent = `⚠️ ${err.message}`;
+        errBox.classList.remove('hidden');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Create Account ➔';
+      }
+    }
+
+    async function handleLoginSubmit() {
+      const errBox = document.getElementById('login-error-box');
+      const submitBtn = document.getElementById('btn-submit-login');
+      errBox.classList.add('hidden');
+      errBox.textContent = '';
+
+      const identifier = document.getElementById('login-identifier').value.trim();
+      const password = document.getElementById('login-password').value;
+
+      if (!identifier || !password) {
+        errBox.textContent = '⚠️ Please enter your email or username and password';
+        errBox.classList.remove('hidden');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Signing in...';
+
+      try {
+        const response = await fetch(`${API_BASE}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ identifier, password }),
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || 'Invalid credentials');
+        }
+
+        localStorage.setItem('dr_token', data.token);
+        localStorage.setItem('dr_user', JSON.stringify(data.user));
+        updateCurrentUserUI(data.user);
+        alert(`✨ Welcome back, @${data.user.username}!`);
+        showScreen('home');
+      } catch (err) {
+        console.warn('API login error:', err.message);
+        errBox.textContent = `⚠️ ${err.message}`;
+        errBox.classList.remove('hidden');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Log In ➔';
+      }
+    }
+
+    function updateCurrentUserUI(user) {
+      if (!user) return;
+      const initials = (user.fullName || user.username || 'AG')
+        .split(' ')
+        .map(n => n[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase();
+      const avEl = document.getElementById('user-avatar-btn');
+      if (avEl) {
+        avEl.textContent = initials;
+        avEl.title = `Logged in as @${user.username} (${user.fullName}). Click to log out.`;
+      }
+    }
+
+    function handleLogoutOrProfile() {
+      const stored = localStorage.getItem('dr_user');
+      const user = stored ? JSON.parse(stored) : null;
+      const nameStr = user ? `@${user.username} (${user.fullName})` : 'your account';
+
+      if (confirm(`You are logged in as ${nameStr}.\n\nWould you like to log out?`)) {
+        localStorage.removeItem('dr_token');
+        localStorage.removeItem('dr_user');
+        showScreen('welcome');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('dr_token');
+      const savedUser = localStorage.getItem('dr_user');
+      if (token && savedUser) {
+        try {
+          updateCurrentUserUI(JSON.parse(savedUser));
+          showScreen('home');
+        } catch (e) {
+          showScreen('welcome');
+        }
+      } else {
+        showScreen('welcome');
+      }
+    });
+
+    function fillDemoSignup() {
+      const rand = Math.floor(100 + Math.random() * 900);
+      document.getElementById('signup-name').value = 'Karan Mehra';
+      document.getElementById('signup-username').value = `karan${rand}`;
+      document.getElementById('signup-email').value = `karan${rand}@gmail.com`;
+      document.getElementById('signup-password').value = 'DemoPass123!';
+    }
+
+    function fillDemoLogin() {
+      document.getElementById('login-identifier').value = '@adarshg';
+      document.getElementById('login-password').value = 'MasterPassword2026!';
+    }
+
+    function goToStep(stepNum) {
+      showScreen('create');
+      activeStep = stepNum;
+
+      document.getElementById('create-step-1').classList.add('hidden');
+      document.getElementById('create-step-2').classList.add('hidden');
+      document.getElementById('create-step-3').classList.add('hidden');
+      document.getElementById(`create-step-${stepNum}`).classList.remove('hidden');
+
+      const sub = document.getElementById('create-step-sub');
+      const nextBtn = document.getElementById('btn-step-next');
+
+      // Update Stepper Nodes
+      for (let i = 1; i <= 3; i++) {
+        const node = document.getElementById(`node-${i}`);
+        const label = document.getElementById(`label-${i}`);
+        node.classList.remove('active', 'completed');
+        label.classList.remove('active');
+
+        if (i < stepNum) {
+          node.classList.add('completed');
+          node.textContent = '✓';
+        } else if (i === stepNum) {
+          node.classList.add('active');
+          node.textContent = i;
+          label.classList.add('active');
+        } else {
+          node.textContent = i;
+        }
+      }
+
+      // Connectors
+      document.getElementById('line-1').classList.toggle('active', stepNum >= 2);
+      document.getElementById('line-2').classList.toggle('active', stepNum >= 3);
+
+      if (stepNum === 1) {
+        sub.textContent = 'Step 1 of 3: Details';
+        nextBtn.textContent = 'Continue to Members →';
+      } else if (stepNum === 2) {
+        sub.textContent = 'Step 2 of 3: Members';
+        nextBtn.textContent = 'Continue to Review →';
+      } else {
+        sub.textContent = 'Step 3 of 3: Review & Cover';
+        nextBtn.textContent = '✨ Create Trip';
+        // Refresh Review Box
+        document.getElementById('rev-name').textContent = document.getElementById('input-trip-name').value || 'Goa Escape 2026';
+        document.getElementById('rev-dest').textContent = document.getElementById('input-trip-dest').value || 'Goa, India';
+        document.getElementById('rev-dates').textContent = `${document.getElementById('input-start-date').value} – ${document.getElementById('input-end-date').value}`;
+        const count = document.querySelectorAll('#members-list .member-chip-ui').length;
+        document.getElementById('rev-members').textContent = `${count} Friends`;
+      }
+    }
+
+    async function ensureAutoLogin() {
+      let token = localStorage.getItem('dr_token');
+      if (token) return token;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ identifier: '@adarshg', password: 'MasterPassword2026!' }),
+        });
+
+        const data = await res.json();
+        if (res.ok && data.token) {
+          localStorage.setItem('dr_token', data.token);
+          localStorage.setItem('dr_user', JSON.stringify(data.user));
+          updateCurrentUserUI(data.user);
+          return data.token;
+        }
+      } catch (e) {
+        console.warn('Auto-login attempt failed:', e.message);
+      }
+      return null;
+    }
+
+    async function refreshDashboardFromBackend() {
+      let token = localStorage.getItem('dr_token');
+      if (!token) token = await ensureAutoLogin();
+      if (!token) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/dashboard`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+
+        const friendsEl = document.getElementById('stat-friends-value');
+        const incEl = document.getElementById('stat-incoming-value');
+        const outEl = document.getElementById('stat-outgoing-value');
+
+        if (friendsEl) friendsEl.textContent = data.stats.formatted.friends;
+        if (incEl) incEl.textContent = data.stats.formatted.incoming;
+        if (outEl) outEl.textContent = data.stats.formatted.outgoing;
+        updateCurrentUserUI(data.user);
+
+        // Update recent trips section on Home Dashboard dynamically from MongoDB Atlas
+        const recentContainer = document.getElementById('home-recent-trips-container');
+        if (recentContainer) {
+          const recentTrips = data.recentTrips || [];
+          if (recentTrips.length === 0) {
+            recentContainer.innerHTML = `
+              <div style="background: rgba(13, 53, 40, 0.5); border: 1px dashed rgba(255,255,255,0.12); border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                  <div style="font-size: 13px; font-weight: 700; color: #fff;">No active trips yet</div>
+                  <div style="font-size: 10px; color: var(--text-muted);">Create your first trip to start splitting</div>
+                </div>
+                <button onclick="showScreen('create')" style="background: var(--accent-mint); color: #051B14; border: none; font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: 8px; cursor: pointer;">+ Create</button>
+              </div>
+            `;
+          } else {
+            recentContainer.innerHTML = recentTrips.map(t => {
+              const thumb = t.destination.toLowerCase().includes('beach') || t.destination.toLowerCase().includes('goa') ? '🏖️' :
+                            t.destination.toLowerCase().includes('mountain') || t.destination.toLowerCase().includes('manali') ? '🏔️' : '✈️';
+              let bal = t.myStatus === 'IS_OWED' ? `<span style="color: var(--accent-mint); font-weight: 800;">+₹${(t.myBalanceMinor/100).toFixed(0)}</span>` :
+                        t.myStatus === 'OWES' ? `<span style="color: #FFA285; font-weight: 800;">-₹${(Math.abs(t.myBalanceMinor)/100).toFixed(0)}</span>` :
+                        `<span style="color: var(--text-muted); font-weight: 800;">Settled</span>`;
+
+              return `
+                <div class="trip-card-item" onclick="openTripDetails('${t.id}')" style="padding: 10px 14px; margin-bottom: 0;">
+                  <div class="trip-thumb" style="width: 38px; height: 38px; font-size: 18px;">${thumb}</div>
+                  <div style="flex: 1;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <span style="font-size: 13px; font-weight: 800; color: #fff;">${t.name}</span>
+                      ${bal}
+                    </div>
+                    <div style="font-size: 10px; color: var(--text-muted);">📍 ${t.destination} • 👥 ${t.totalMembers} Members</div>
+                  </div>
+                </div>
+              `;
+            }).join('');
+          }
+        }
+      } catch (e) {
+        console.warn('Dashboard fetch error:', e.message);
+      }
+    }
+
+    async function refreshTripsFromBackend() {
+      const container = document.getElementById('trips-list-container');
+      const countBadge = document.getElementById('trips-count-badge');
+      if (!container) return;
+
+      container.innerHTML = '<div style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 20px;">Connecting to MongoDB Atlas...</div>';
+
+      let token = localStorage.getItem('dr_token');
+      if (!token) {
+        token = await ensureAutoLogin();
+      }
+
+      if (!token) {
+        container.innerHTML = `
+          <div style="background: rgba(255, 92, 92, 0.1); border: 1px solid rgba(255, 92, 92, 0.25); border-radius: 14px; padding: 16px; text-align: center; color: #FFA285; font-size: 12px;">
+            ⚠️ Not logged in to MongoDB Atlas.<br/><br/>
+            <button onclick="showScreen('login')" style="background: var(--accent-mint); color: #051B14; border: none; font-size: 12px; font-weight: 800; padding: 8px 16px; border-radius: 10px; cursor: pointer;">🔑 Click Here to Log In (@adarshg)</button>
+          </div>
+        `;
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/api/trips`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to fetch trips');
+
+        const trips = data.trips || [];
+        if (countBadge) countBadge.textContent = `${trips.length} ${trips.length === 1 ? 'Trip' : 'Trips'}`;
+
+        if (trips.length === 0) {
+          container.innerHTML = `
+            <div style="background: rgba(13, 53, 40, 0.4); border: 1px dashed rgba(255,255,255,0.1); border-radius: 20px; padding: 30px 20px; text-align: center;">
+              <div style="font-size: 32px; margin-bottom: 10px;">🗺️</div>
+              <div style="font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 4px;">No Trips Yet</div>
+              <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">Create your first trip and let Divide & Rule handle the math.</div>
+              <button class="btn btn-primary" onclick="showScreen('create')" style="height: 44px; font-size: 13px; padding: 0 20px; display: inline-flex;">+ Start First Adventure</button>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = trips.map(t => {
+          const thumb = t.destination.toLowerCase().includes('beach') || t.destination.toLowerCase().includes('goa') ? '🏖️' :
+                        t.destination.toLowerCase().includes('mountain') || t.destination.toLowerCase().includes('manali') ? '🏔️' : '✈️';
+
+          let balanceDisplay = '';
+          if (t.myStatus === 'IS_OWED') {
+            balanceDisplay = `<span style="font-size: 13px; font-weight: 800; color: var(--accent-mint);">+₹${(t.myBalanceMinor/100).toFixed(0)}</span>`;
+          } else if (t.myStatus === 'OWES') {
+            balanceDisplay = `<span style="font-size: 13px; font-weight: 800; color: #FFA285;">-₹${(Math.abs(t.myBalanceMinor)/100).toFixed(0)}</span>`;
+          } else {
+            balanceDisplay = `<span style="font-size: 13px; font-weight: 800; color: var(--text-muted);">Settled</span>`;
+          }
+
+          const datesStr = `${new Date(t.startDate).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })} – ${new Date(t.endDate).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}`;
+
+          return `
+            <div class="trip-card-item" onclick="openTripDetails('${t.id}')">
+              <div class="trip-thumb">${thumb}</div>
+              <div style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                  <span style="font-size: 15px; font-weight: 800; color: #fff;">${t.name}</span>
+                  <span style="font-size: 9px; font-weight: 700; color: var(--accent-mint); background: rgba(0,229,153,0.15); padding: 2px 6px; border-radius: 9999px;">${t.status}</span>
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">📍 ${t.destination} • ${datesStr}</div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 10px; color: var(--text-muted); background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 6px;">👥 ${t.totalMembers} Friends</span>
+                  ${balanceDisplay}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        container.innerHTML = `
+          <div style="background: rgba(255, 92, 92, 0.1); border: 1px solid rgba(255, 92, 92, 0.2); border-radius: 14px; padding: 16px; text-align: center; color: #FFA285; font-size: 12px;">
+            ⚠️ ${err.message}. Please <span onclick="showScreen('login')" style="color: #fff; text-decoration: underline; cursor: pointer; font-weight: 700;">Log In</span> to see your live trips.
+          </div>
+        `;
+      }
+    }
+
+    async function handleStepNext() {
+      if (activeStep === 1) {
+        goToStep(2);
+      } else if (activeStep === 2) {
+        goToStep(3);
+      } else {
+        const nextBtn = document.getElementById('btn-step-next');
+        const token = localStorage.getItem('dr_token');
+        if (!token) {
+          alert('Please log in first to save your trip on MongoDB Atlas.');
+          showScreen('login');
+          return;
+        }
+
+        const name = document.getElementById('input-trip-name').value.trim() || 'Goa Escape 2026';
+        const destination = document.getElementById('input-trip-dest').value.trim() || 'Goa, India';
+        const startDate = document.getElementById('input-start-date').value || '2026-11-10';
+        const endDate = document.getElementById('input-end-date').value || '2026-11-15';
+        const currency = document.querySelector('.curr-badge.active')?.textContent.trim() || 'INR';
+        const memberChips = document.querySelectorAll('#members-list .member-chip-name');
+        const memberUsernames = Array.from(memberChips).map(c => c.textContent.trim());
+
+        nextBtn.disabled = true;
+        nextBtn.textContent = 'Saving to Atlas...';
+
+        try {
+          const res = await fetch(`${API_BASE}/api/trips`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              name,
+              destination,
+              startDate,
+              endDate,
+              currency,
+              memberUsernames,
+            }),
+          });
+
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.error || 'Failed to create trip');
+          }
+
+          alert(`🎉 Trip "${data.trip.name}" created and saved to MongoDB Atlas!`);
+          showScreen('home');
+        } catch (err) {
+          alert(`⚠️ ${err.message}`);
+        } finally {
+          nextBtn.disabled = false;
+          nextBtn.textContent = '✨ Create Trip';
+        }
+      }
+    }
+
+    function handleCreateBack() {
+      if (activeStep > 1) {
+        goToStep(activeStep - 1);
+      } else {
+        showScreen('trips');
+      }
+    }
+
+    function setCurrency(el, curr) {
+      document.querySelectorAll('.curr-pill').forEach(p => p.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    function setCover(el, name) {
+      document.querySelectorAll('.cover-box').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    function addMember() {
+      const input = document.getElementById('new-member-input');
+      const name = input.value.trim();
+      if (!name) return;
+
+      const list = document.getElementById('members-list');
+      const initials = name.slice(0, 2).toUpperCase();
+
+      const chip = document.createElement('div');
+      chip.className = 'member-chip-ui';
+      chip.innerHTML = `
+        <div class="member-chip-av">${initials}</div>
+        <span class="member-chip-name">${name}</span>
+        <div class="member-chip-del" onclick="this.parentElement.remove(); updateMembersCount();">×</div>
+      `;
+      list.appendChild(chip);
+      input.value = '';
+      updateMembersCount();
+    }
+
+    function updateMembersCount() {
+      const count = document.querySelectorAll('#members-list .member-chip-ui').length;
+      document.getElementById('members-counter').textContent = `${count} ${count === 1 ? 'FRIEND' : 'FRIENDS'} ADDED`;
+    }
+
+    // ─── FRIENDS & CIRCLES CONTROLLER ────────────────────────────────────────
+
+    let activeFriendsTab = 'friends';
+    let friendSearchDebounceTimer = null;
+
+    function switchFriendsTab(tab) {
+      activeFriendsTab = tab;
+      const tabFriends = document.getElementById('f-tab-friends');
+      const tabRequests = document.getElementById('f-tab-requests');
+      const tabSearch = document.getElementById('f-tab-search');
+
+      const btnFriends = document.getElementById('f-tab-btn-friends');
+      const btnRequests = document.getElementById('f-tab-btn-requests');
+      const btnSearch = document.getElementById('f-tab-btn-search');
+
+      [tabFriends, tabRequests, tabSearch].forEach(t => t && t.classList.add('hidden'));
+      [btnFriends, btnRequests, btnSearch].forEach(b => b && b.classList.remove('active'));
+
+      if (tab === 'friends') {
+        if (tabFriends) tabFriends.classList.remove('hidden');
+        if (btnFriends) btnFriends.classList.add('active');
+      } else if (tab === 'requests') {
+        if (tabRequests) tabRequests.classList.remove('hidden');
+        if (btnRequests) btnRequests.classList.add('active');
+      } else if (tab === 'search') {
+        if (tabSearch) tabSearch.classList.remove('hidden');
+        if (btnSearch) btnSearch.classList.add('active');
+        const input = document.getElementById('f-search-input');
+        if (input) input.focus();
+      }
+    }
+
+    function showFriendsToast(message, isError = false) {
+      const banner = document.getElementById('friends-notification-banner');
+      if (!banner) return;
+      banner.textContent = message;
+      banner.style.background = isError ? 'rgba(255, 92, 92, 0.18)' : 'rgba(0, 229, 153, 0.18)';
+      banner.style.border = isError ? '1px solid rgba(255, 92, 92, 0.4)' : '1px solid rgba(0, 229, 153, 0.4)';
+      banner.style.color = isError ? '#FFA285' : 'var(--accent-mint)';
+      banner.classList.remove('hidden');
+      setTimeout(() => {
+        banner.classList.add('hidden');
+      }, 4000);
+    }
+
+    async function refreshFriendsFromBackend() {
+      let token = localStorage.getItem('dr_token');
+      if (!token) token = await ensureAutoLogin();
+      if (!token) return;
+
+      try {
+        const [friendsRes, reqRes] = await Promise.all([
+          fetch(`${API_BASE}/api/friends`, {
+            headers: { Authorization: `Bearer ${token}` }
+          }),
+          fetch(`${API_BASE}/api/friends/requests`, {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+        ]);
+
+        if (friendsRes.ok) {
+          const { friends } = await friendsRes.json();
+          renderFriendsList(friends || []);
+        }
+
+        if (reqRes.ok) {
+          const { incoming, outgoing } = await reqRes.json();
+          renderRequestsList(incoming || [], outgoing || []);
+        }
+      } catch (err) {
+        console.error('refreshFriends error:', err);
+      }
+    }
+
+    function renderFriendsList(friends) {
+      const container = document.getElementById('f-friends-list-container');
+      const badge = document.getElementById('f-badge-friends');
+      if (badge) badge.textContent = friends.length;
+
+      if (!container) return;
+
+      if (friends.length === 0) {
+        container.innerHTML = `
+          <div style="background: rgba(13, 53, 40, 0.45); border: 1px dashed rgba(255,255,255,0.12); border-radius: 18px; padding: 24px 16px; text-align: center;">
+            <div style="font-size: 28px; margin-bottom: 8px;">👥</div>
+            <div style="font-size: 14px; font-weight: 800; color: #fff; margin-bottom: 4px;">No Friends Added Yet</div>
+            <div style="font-size: 11px; color: var(--text-muted); line-height: 16px; margin-bottom: 14px;">
+              Find registered users by @username to connect and split expenses seamlessly.
+            </div>
+            <button onclick="switchFriendsTab('search')" class="f-btn-primary" style="padding: 8px 16px; font-size: 12px; margin: 0 auto;">
+              + Find & Add Friends
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = friends.map(f => {
+        const initials = (f.fullName || f.username || 'F').slice(0, 2).toUpperCase();
+        return `
+          <div class="f-card">
+            <div class="f-avatar">${initials}</div>
+            <div style="flex: 1;">
+              <div style="font-size: 14px; font-weight: 800; color: #fff;">${f.fullName || f.username}</div>
+              <div style="font-size: 11px; color: var(--text-muted);">@${f.username}</div>
+            </div>
+            <button onclick="planTripWithFriend('${f.username}')" class="f-btn-primary">
+              + Plan Trip
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderRequestsList(incoming, outgoing) {
+      const inContainer = document.getElementById('f-incoming-container');
+      const outContainer = document.getElementById('f-outgoing-container');
+      const badge = document.getElementById('f-badge-requests');
+      if (badge) badge.textContent = incoming.length;
+
+      if (inContainer) {
+        if (incoming.length === 0) {
+          inContainer.innerHTML = '<div style="color: var(--text-muted); font-size: 11px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 12px; text-align: center;">No incoming requests</div>';
+        } else {
+          inContainer.innerHTML = incoming.map(r => {
+            const u = r.fromUser || {};
+            const initials = (u.fullName || u.username || 'U').slice(0, 2).toUpperCase();
+            return `
+              <div class="f-card" style="border-color: rgba(0, 229, 153, 0.25);">
+                <div class="f-avatar">${initials}</div>
+                <div style="flex: 1;">
+                  <div style="font-size: 13px; font-weight: 800; color: #fff;">${u.fullName || u.username}</div>
+                  <div style="font-size: 10px; color: var(--text-muted);">@${u.username}</div>
+                </div>
+                <div style="display: flex; gap: 6px;">
+                  <button onclick="respondToFriendRequestFromUI('${r.id}', 'ACCEPT')" class="f-btn-primary" style="padding: 5px 10px; font-size: 11px;">Accept</button>
+                  <button onclick="respondToFriendRequestFromUI('${r.id}', 'REJECT')" class="f-btn-outline" style="padding: 5px 8px; font-size: 11px;">Decline</button>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      if (outContainer) {
+        if (outgoing.length === 0) {
+          outContainer.innerHTML = '<div style="color: var(--text-muted); font-size: 11px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 12px; text-align: center;">No sent requests</div>';
+        } else {
+          outContainer.innerHTML = outgoing.map(r => {
+            const u = r.toUser || {};
+            const initials = (u.fullName || u.username || 'U').slice(0, 2).toUpperCase();
+            return `
+              <div class="f-card">
+                <div class="f-avatar">${initials}</div>
+                <div style="flex: 1;">
+                  <div style="font-size: 13px; font-weight: 800; color: #fff;">${u.fullName || u.username}</div>
+                  <div style="font-size: 10px; color: var(--text-muted);">@${u.username}</div>
+                </div>
+                <div class="f-badge-req">Pending</div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+    }
+
+    function debounceFriendSearch() {
+      clearTimeout(friendSearchDebounceTimer);
+      friendSearchDebounceTimer = setTimeout(() => {
+        executeFriendSearch();
+      }, 350);
+    }
+
+    async function executeFriendSearch() {
+      const input = document.getElementById('f-search-input');
+      const container = document.getElementById('f-search-results-container');
+      if (!input || !container) return;
+
+      const q = input.value.trim().replace(/^@/, '');
+      if (q.length < 2) {
+        container.innerHTML = `
+          <div style="background: rgba(0, 229, 153, 0.06); border: 1px dashed rgba(0, 229, 153, 0.25); border-radius: 14px; padding: 16px; text-align: center;">
+            <div style="font-size: 12px; font-weight: 700; color: var(--accent-mint); margin-bottom: 4px;">💡 Discover Peers</div>
+            <div style="font-size: 11px; color: var(--text-muted);">Type at least 2 characters to search registered users</div>
+          </div>
+        `;
+        return;
+      }
+
+      let token = localStorage.getItem('dr_token');
+      if (!token) token = await ensureAutoLogin();
+      if (!token) return;
+
+      container.innerHTML = '<div style="color: var(--text-muted); font-size: 11px; text-align: center; padding: 16px;">Searching MongoDB...</div>';
+
+      try {
+        const res = await fetch(`${API_BASE}/api/friends/search?q=${encodeURIComponent(q)}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error('Search failed');
+        const { results } = await res.json();
+
+        if (!results || results.length === 0) {
+          container.innerHTML = `
+            <div style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 20px; background: rgba(255,255,255,0.02); border-radius: 12px;">
+              No users found matching "@${q}"
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = results.map(u => {
+          const initials = (u.fullName || u.username).slice(0, 2).toUpperCase();
+          let actionHtml = '';
+          if (u.friendshipStatus === 'FRIENDS') {
+            actionHtml = '<div class="f-badge-friends">✓ Friends</div>';
+          } else if (u.friendshipStatus === 'REQUEST_SENT') {
+            actionHtml = '<div class="f-badge-req">Requested</div>';
+          } else if (u.friendshipStatus === 'REQUEST_RECEIVED') {
+            actionHtml = `<button onclick="switchFriendsTab('requests')" class="f-btn-primary" style="padding: 5px 10px; font-size: 11px;">Respond</button>`;
+          } else {
+            actionHtml = `<button onclick="sendFriendRequestFromUI('${u.username}')" class="f-btn-primary">+ Add Friend</button>`;
+          }
+
+          return `
+            <div class="f-card">
+              <div class="f-avatar">${initials}</div>
+              <div style="flex: 1;">
+                <div style="font-size: 14px; font-weight: 800; color: #fff;">${u.fullName}</div>
+                <div style="font-size: 11px; color: var(--text-muted);">@${u.username}</div>
+              </div>
+              ${actionHtml}
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        container.innerHTML = `<div style="color: #FFA285; font-size: 11px; text-align: center; padding: 12px;">⚠️ ${err.message}</div>`;
+      }
+    }
+
+    async function sendFriendRequestFromUI(targetUsername) {
+      let token = localStorage.getItem('dr_token');
+      if (!token) token = await ensureAutoLogin();
+      if (!token) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/friends/request`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ targetUsername })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to send friend request');
+
+        showFriendsToast(`✓ ${data.message}`);
+        executeFriendSearch();
+        refreshFriendsFromBackend();
+      } catch (err) {
+        showFriendsToast(`⚠️ ${err.message}`, true);
+      }
+    }
+
+    async function respondToFriendRequestFromUI(requestId, action) {
+      let token = localStorage.getItem('dr_token');
+      if (!token) token = await ensureAutoLogin();
+      if (!token) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/friends/requests/${requestId}/respond`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ action })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to respond to request');
+
+        showFriendsToast(`✓ ${data.message}`);
+        refreshFriendsFromBackend();
+        refreshDashboardFromBackend();
+      } catch (err) {
+        showFriendsToast(`⚠️ ${err.message}`, true);
+      }
+    }
+
+    // ─── TRIP DETAILS & EXPENSE SPLITTING CONTROLLER ────────────────────────
+
+    let currentActiveTripId = null;
+    let currentTripExpenses = [];
+    let currentTripBalances = [];
+    let currentTripSettlements = [];
+    let currentTripRawData = null;
+    let currentTripActiveTab = 'expenses';
+    let currentExpFilterCat = 'ALL';
+    let currentModalCat = 'FOOD';
+    let currentSplitMode = 'EQUAL';
+    let currentPendingSettle = null;
+    let currentTripPendingSettlements = [];
+    let currentTripPendingSplits = [];
+    let currentSettlePaymentMethod = 'UPI';
+
+    function showTripDetailsToast(msg, isError = false) {
+      const banner = document.getElementById('dt-notification-banner');
+      if (!banner) return;
+      banner.textContent = msg;
+      banner.style.background = isError ? 'rgba(255, 92, 92, 0.18)' : 'rgba(0, 229, 153, 0.18)';
+      banner.style.border = isError ? '1px solid rgba(255, 92, 92, 0.4)' : '1px solid rgba(0, 229, 153, 0.4)';
+      banner.style.color = isError ? '#FFA285' : 'var(--accent-mint)';
+      banner.classList.remove('hidden');
+      setTimeout(() => banner.classList.add('hidden'), 4000);
+    }
+
+    function openTripDetails(tripId) {
+      currentActiveTripId = tripId;
+      showScreen('details');
+    }
+
+    async function loadActiveTripDetails() {
+      let token = localStorage.getItem('dr_token');
+      if (!token) token = await ensureAutoLogin();
+      if (!token) return;
+
+      // If no tripId set, grab the first available trip from MongoDB
+      if (!currentActiveTripId) {
+        try {
+          const tripsRes = await fetch(`${API_BASE}/api/trips`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const tripsData = await tripsRes.json();
+          if (tripsData.trips && tripsData.trips.length > 0) {
+            currentActiveTripId = tripsData.trips[0].id;
+          } else {
+            showScreen('trips');
+            return;
+          }
+        } catch (e) {
+          showScreen('trips');
+          return;
+        }
+      }
+
+      try {
+        const [tripRes, expRes, balRes, settleRes, pendingRes, pendingSplitsRes] = await Promise.all([
+          fetch(`${API_BASE}/api/trips/${currentActiveTripId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          }),
+          fetch(`${API_BASE}/api/trips/${currentActiveTripId}/expenses`, {
+            headers: { Authorization: `Bearer ${token}` }
+          }),
+          fetch(`${API_BASE}/api/trips/${currentActiveTripId}/balances`, {
+            headers: { Authorization: `Bearer ${token}` }
+          }),
+          fetch(`${API_BASE}/api/trips/${currentActiveTripId}/settlements`, {
+            headers: { Authorization: `Bearer ${token}` }
+          }),
+          fetch(`${API_BASE}/api/trips/${currentActiveTripId}/settlements/pending`, {
+            headers: { Authorization: `Bearer ${token}` }
+          }).catch(() => null),
+          fetch(`${API_BASE}/api/trips/${currentActiveTripId}/expenses/pending-splits`, {
+            headers: { Authorization: `Bearer ${token}` }
+          }).catch(() => null)
+        ]);
+
+        if (tripRes.ok) {
+          const { trip } = await tripRes.json();
+          currentTripRawData = trip;
+          document.getElementById('dt-trip-title').textContent = trip.name;
+          document.getElementById('dt-trip-dest').textContent = `📍 ${trip.destination} • ${trip.currency || 'INR'}`;
+        }
+
+        if (expRes.ok) {
+          const expData = await expRes.json();
+          currentTripExpenses = expData.expenses || [];
+          document.getElementById('dt-badge-exp').textContent = currentTripExpenses.length;
+          document.getElementById('dt-total-exp-sub').textContent = `${currentTripExpenses.length} ${currentTripExpenses.length === 1 ? 'expense' : 'expenses'} recorded`;
+        }
+
+        if (balRes.ok) {
+          const balData = await balRes.json();
+          currentTripBalances = balData.balances || [];
+          document.getElementById('dt-badge-bal').textContent = currentTripBalances.length;
+          document.getElementById('dt-total-spend').textContent = `₹${((balData.tripTotalSpendMinor || 0) / 100).toFixed(0)}`;
+
+          // Find current user's balance
+          const currentUserStr = localStorage.getItem('dr_user');
+          const currUser = currentUserStr ? JSON.parse(currentUserStr) : null;
+          const myBal = currentTripBalances.find(b => b.username === currUser?.username);
+
+          const myBalEl = document.getElementById('dt-my-balance');
+          const myBalSub = document.getElementById('dt-my-balance-sub');
+
+          if (myBal) {
+            const net = myBal.netBalanceMinor || 0;
+            if (net > 0) {
+              myBalEl.textContent = `+₹${(net / 100).toFixed(0)}`;
+              myBalEl.style.color = 'var(--accent-mint)';
+              myBalSub.textContent = 'You are owed';
+            } else if (net < 0) {
+              myBalEl.textContent = `-₹${(Math.abs(net) / 100).toFixed(0)}`;
+              myBalEl.style.color = '#FFA285';
+              myBalSub.textContent = 'You owe';
+            } else {
+              myBalEl.textContent = 'Settled';
+              myBalEl.style.color = 'var(--text-muted)';
+              myBalSub.textContent = 'All clear';
+            }
+          }
+        }
+
+        if (settleRes.ok) {
+          const settleData = await settleRes.json();
+          currentTripSettlements = settleData.settlementPlan || [];
+          document.getElementById('dt-badge-settle').textContent = currentTripSettlements.length;
+        }
+
+        if (pendingRes && pendingRes.ok) {
+          const pendingData = await pendingRes.json();
+          currentTripPendingSettlements = pendingData.pendingRequests || [];
+          renderPendingSettlementsBanner();
+        } else {
+          currentTripPendingSettlements = [];
+          renderPendingSettlementsBanner();
+        }
+
+        if (pendingSplitsRes && pendingSplitsRes.ok) {
+          const splitData = await pendingSplitsRes.json();
+          currentTripPendingSplits = splitData.pendingSplits || [];
+          renderPendingSplitsBanner();
+        } else {
+          currentTripPendingSplits = [];
+          renderPendingSplitsBanner();
+        }
+
+        renderTripExpenses();
+        renderTripBalances();
+        renderTripSettlements();
+      } catch (err) {
+        console.error('loadActiveTripDetails error:', err);
+      }
+    }
+
+    function switchTripDetailsTab(tab) {
+      currentTripActiveTab = tab;
+      const vExp = document.getElementById('dt-view-expenses');
+      const vBal = document.getElementById('dt-view-balances');
+      const vSettle = document.getElementById('dt-view-settlements');
+
+      const bExp = document.getElementById('dt-tab-btn-exp');
+      const bBal = document.getElementById('dt-tab-btn-bal');
+      const bSettle = document.getElementById('dt-tab-btn-settle');
+
+      [vExp, vBal, vSettle].forEach(v => v && v.classList.add('hidden'));
+      [bExp, bBal, bSettle].forEach(b => b && b.classList.remove('active'));
+
+      if (tab === 'expenses') {
+        if (vExp) vExp.classList.remove('hidden');
+        if (bExp) bExp.classList.add('active');
+      } else if (tab === 'balances') {
+        if (vBal) vBal.classList.remove('hidden');
+        if (bBal) bBal.classList.add('active');
+      } else if (tab === 'settlements') {
+        if (vSettle) vSettle.classList.remove('hidden');
+        if (bSettle) bSettle.classList.add('active');
+      }
+    }
+
+    function filterExpensesByCategory(cat) {
+      currentExpFilterCat = cat;
+      const cats = ['ALL', 'FOOD', 'TRAVEL', 'STAY', 'ACTIVITIES', 'SHOPPING', 'OTHER'];
+      cats.forEach(c => {
+        const btn = document.getElementById(`dt-cat-${c}`);
+        if (btn) {
+          if (c === cat) btn.classList.add('active');
+          else btn.classList.remove('active');
+        }
+      });
+      renderTripExpenses();
+    }
+
+    function renderTripExpenses() {
+      const container = document.getElementById('dt-expenses-container');
+      if (!container) return;
+
+      const filtered = currentExpFilterCat === 'ALL'
+        ? currentTripExpenses
+        : currentTripExpenses.filter(e => e.category === currentExpFilterCat);
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div style="background: rgba(13, 53, 40, 0.45); border: 1px dashed rgba(255,255,255,0.1); border-radius: 18px; padding: 24px 16px; text-align: center;">
+            <div style="font-size: 28px; margin-bottom: 8px;">🧾</div>
+            <div style="font-size: 14px; font-weight: 800; color: #fff; margin-bottom: 4px;">No Expenses Found</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 14px;">
+              ${currentExpFilterCat === 'ALL' ? 'Start recording bills and shared expenses.' : `No expenses found in category ${currentExpFilterCat}.`}
+            </div>
+            <button onclick="openAddExpenseModal()" class="f-btn-primary" style="margin: 0 auto; padding: 8px 16px;">
+              + Add Expense
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      const catIcons = { FOOD: '🍔', TRAVEL: '✈️', STAY: '🏨', ACTIVITIES: '🎟️', SHOPPING: '🛍️', SETTLEMENT: '🤝', OTHER: '💳' };
+
+      container.innerHTML = filtered.map(e => {
+        const isSettlement = e.category === 'SETTLEMENT';
+        const icon = isSettlement ? '🤝' : (catIcons[e.category] || '💳');
+        const isPayer = e.isPayer;
+        const myShareMinor = e.myShareMinor || 0;
+        const dateStr = new Date(e.expenseDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+        return `
+          <div class="f-card" style="display: flex; flex-direction: column; align-items: stretch; gap: 10px; ${isSettlement ? 'border-color: rgba(0, 229, 153, 0.35); background: rgba(13, 53, 40, 0.85);' : ''}">
+            <div style="display: flex; align-items: center; gap: 12px; width: 100%;">
+              <div class="f-avatar" style="${isSettlement ? 'background: rgba(0,229,153,0.15);' : ''}; font-size: 16px;">${icon}</div>
+              <div style="flex: 1;">
+                <div style="font-size: 14px; font-weight: 800; color: #fff;">${e.title}</div>
+                <div style="font-size: 10px; color: var(--text-muted);">
+                  Paid by <span style="color: var(--accent-mint); font-weight: 700;">@${e.paidBy?.username}</span> • ${e.splitCount} ${e.splitCount === 1 ? 'person' : 'people'}
+                </div>
+                <div style="font-size: 9px; color: rgba(255,255,255,0.4); margin-top: 2px;">${dateStr}</div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 15px; font-weight: 800; color: #fff;">₹${(e.amountMinor / 100).toFixed(0)}</div>
+                ${!isSettlement ? `
+                  <div style="font-size: 10px; font-weight: 700; color: ${isPayer ? 'var(--accent-mint)' : '#FFA285'};">
+                    ${isPayer ? `You paid ₹${(e.amountMinor/100).toFixed(0)}` : `Your share ₹${(myShareMinor/100).toFixed(0)}`}
+                  </div>
+                ` : '<div style="font-size: 10px; font-weight: 700; color: var(--accent-mint);">Settlement</div>'}
+                ${isPayer ? `<div onclick="deleteTripExpenseFromUI('${e.id}')" style="font-size: 10px; color: #FFA285; font-weight: 700; cursor: pointer; margin-top: 3px;">Delete</div>` : ''}
+              </div>
+            </div>
+
+            ${!isSettlement && e.splitBetween && e.splitBetween.length > 0 ? `
+              <div style="display: flex; flex-wrap: wrap; gap: 5px; align-items: center; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.06);">
+                <span style="font-size: 9px; color: var(--text-muted); margin-right: 2px;">Splits:</span>
+                ${e.splitBetween.map(s => {
+                  const st = s.status || 'ACCEPTED';
+                  let badgeStyle = 'background: rgba(0,229,153,0.1); color: var(--accent-mint); border: 1px solid rgba(0,229,153,0.25);';
+                  let statusIcon = '✓';
+                  let statusTitle = 'Accepted';
+                  if (st === 'PENDING') {
+                    badgeStyle = 'background: rgba(255,222,105,0.1); color: #FFDE69; border: 1px solid rgba(255,222,105,0.3);';
+                    statusIcon = '⏳';
+                    statusTitle = 'Awaiting Approval';
+                  } else if (st === 'DECLINED') {
+                    badgeStyle = 'background: rgba(255,162,133,0.1); color: #FFA285; border: 1px solid rgba(255,162,133,0.3);';
+                    statusIcon = '✕';
+                    statusTitle = 'Declined';
+                  }
+                  return `<span title="${statusTitle}" style="font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 8px; display: inline-flex; align-items: center; gap: 3px; ${badgeStyle}">@${s.username || 'user'} ${statusIcon}</span>`;
+                }).join('')}
+              </div>
+            ` : ''}
+
+            ${e.needsMyApproval ? `
+              <div style="background: rgba(255, 222, 105, 0.08); border: 1px dashed rgba(255, 222, 105, 0.4); border-radius: 10px; padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 2px;">
+                <div style="font-size: 10px; color: #FFDE69; font-weight: 700;">
+                  ⚡ Split waiting for you: ₹${(myShareMinor/100).toFixed(0)}
+                </div>
+                <div style="display: flex; gap: 6px;">
+                  <button onclick="respondToSplitFromUI('${e.id}', 'DECLINE')" class="f-btn-outline" style="padding: 4px 8px; font-size: 10px; border-color: #FFA285; color: #FFA285; border-radius: 6px; cursor: pointer;">Decline</button>
+                  <button onclick="respondToSplitFromUI('${e.id}', 'ACCEPT')" class="f-btn-primary" style="padding: 4px 10px; font-size: 10px; border-radius: 6px; background: #00E599; color: #02120C; font-weight: 800; cursor: pointer;">Accept ✓</button>
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderTripBalances() {
+      const container = document.getElementById('dt-balances-container');
+      if (!container) return;
+
+      if (currentTripBalances.length === 0) {
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 20px;">No balances to show.</div>';
+        return;
+      }
+
+      container.innerHTML = currentTripBalances.map(b => {
+        const net = b.netBalanceMinor;
+        const isPos = net > 0;
+        const isZero = net === 0;
+        const color = isPos ? 'var(--accent-mint)' : isZero ? 'var(--text-muted)' : '#FFA285';
+        const label = isPos ? `+₹${(net / 100).toFixed(0)}` : isZero ? 'Settled' : `-₹${(Math.abs(net) / 100).toFixed(0)}`;
+        const initials = (b.fullName || b.username || 'U').slice(0, 2).toUpperCase();
+
+        return `
+          <div class="f-card">
+            <div class="f-avatar">${initials}</div>
+            <div style="flex: 1;">
+              <div style="font-size: 14px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 6px;">
+                ${b.fullName || b.username}
+                ${b.role === 'OWNER' ? '<span style="font-size: 8px; font-weight: 800; background: rgba(0,229,153,0.15); color: var(--accent-mint); padding: 2px 6px; border-radius: 6px;">Owner</span>' : ''}
+              </div>
+              <div style="font-size: 10px; color: var(--text-muted);">@${b.username}</div>
+              <div style="font-size: 9px; color: rgba(255,255,255,0.4); margin-top: 2px;">
+                Paid ₹${(b.totalPaidMinor/100).toFixed(0)} • Share ₹${(b.totalShareMinor/100).toFixed(0)}
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 15px; font-weight: 800; color: ${color};">${label}</div>
+              <div style="font-size: 9px; color: var(--text-muted);">${isPos ? 'Is Owed' : isZero ? 'All Clear' : 'Owes Group'}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderTripSettlements() {
+      const container = document.getElementById('dt-settlements-container');
+      if (!container) return;
+
+      if (currentTripSettlements.length === 0) {
+        container.innerHTML = `
+          <div style="background: rgba(13, 53, 40, 0.45); border: 1px dashed rgba(0, 229, 153, 0.3); border-radius: 18px; padding: 24px 16px; text-align: center;">
+            <div style="font-size: 32px; margin-bottom: 8px;">🎉</div>
+            <div style="font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 4px;">All Debts Settled!</div>
+            <div style="font-size: 11px; color: var(--text-muted); line-height: 16px;">
+              Everyone in this trip has squared away their balances. No further payments are required.
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = currentTripSettlements.map(txn => {
+        const amt = (txn.amountMinor / 100).toFixed(0);
+        return `
+          <div style="background: rgba(13, 53, 40, 0.75); border: 1.5px solid rgba(0, 229, 153, 0.3); border-radius: 16px; padding: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <div style="background: rgba(10, 43, 32, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 6px 12px; text-align: center; min-width: 85px;">
+                <div style="font-size: 12px; font-weight: 800; color: #fff;">@${txn.fromUsername}</div>
+                <div style="font-size: 9px; color: var(--text-muted);">Debtor</div>
+              </div>
+
+              <div style="text-align: center; flex: 1;">
+                <div style="font-size: 14px; font-weight: 900; color: var(--accent-mint);">₹${amt} ➔</div>
+                <div style="font-size: 9px; color: var(--text-muted);">Direct Payment</div>
+              </div>
+
+              <div style="background: rgba(10, 43, 32, 0.8); border: 1px solid var(--accent-mint); border-radius: 10px; padding: 6px 12px; text-align: center; min-width: 85px;">
+                <div style="font-size: 12px; font-weight: 800; color: var(--accent-mint);">@${txn.toUsername}</div>
+                <div style="font-size: 9px; color: var(--text-muted);">Creditor</div>
+              </div>
+            </div>
+
+            <button onclick="openSettleModal('${txn.fromUsername}', '${txn.toUsername}', ${txn.amountMinor})" class="btn btn-primary" style="height: 40px; font-size: 12px; font-weight: 800;">
+              Settle Up ₹${amt} ➔
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openAddExpenseModal() {
+      const modal = document.getElementById('modal-add-expense');
+      const payerSelect = document.getElementById('inp-exp-payer');
+      if (!modal) return;
+
+      // Populate payers
+      const members = currentTripBalances.length > 0
+        ? currentTripBalances
+        : (currentTripRawData?.members || []);
+
+      const currentUserStr = localStorage.getItem('dr_user');
+      const currUser = currentUserStr ? JSON.parse(currentUserStr) : null;
+      const myUsername = currUser?.username || members[0]?.username || 'adarshg';
+
+      if (payerSelect) {
+        payerSelect.innerHTML = members.map(m => {
+          const u = m.username || m.userId?.username;
+          if (!u) return '';
+          const isSelected = u === myUsername;
+          return `<option value="${u}" ${isSelected ? 'selected' : ''}>@${u} (Payer)</option>`;
+        }).join('');
+      }
+
+      document.getElementById('inp-exp-title').value = '';
+      document.getElementById('inp-exp-amount').value = '';
+      currentSplitMode = 'EQUAL';
+      currentModalCat = 'FOOD';
+
+      selectSplitMode('EQUAL');
+      modal.classList.remove('hidden');
+    }
+
+    function closeAddExpenseModal() {
+      const modal = document.getElementById('modal-add-expense');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function selectModalCategory(cat, el) {
+      currentModalCat = cat;
+      const parent = document.getElementById('modal-cat-row');
+      if (parent) {
+        parent.querySelectorAll('.f-tab-btn').forEach(b => b.classList.remove('active'));
+      }
+      if (el) el.classList.add('active');
+    }
+
+    function selectSplitMode(mode) {
+      currentSplitMode = mode;
+      ['equal', 'pct', 'exact'].forEach(m => {
+        const b = document.getElementById(`btn-split-${m}`);
+        if (b) b.classList.remove('active');
+      });
+
+      if (mode === 'EQUAL') document.getElementById('btn-split-equal').classList.add('active');
+      if (mode === 'PERCENTAGE') document.getElementById('btn-split-pct').classList.add('active');
+      if (mode === 'EXACT') document.getElementById('btn-split-exact').classList.add('active');
+
+      renderModalSplitMembers();
+    }
+
+    function renderModalSplitMembers() {
+      const container = document.getElementById('modal-split-members-container');
+      if (!container) return;
+
+      const members = currentTripBalances.length > 0
+        ? currentTripBalances
+        : (currentTripRawData?.members || []);
+
+      const totalAmt = parseFloat(document.getElementById('inp-exp-amount').value) || 0;
+      const count = members.length || 1;
+      const equalShare = (totalAmt / count).toFixed(0);
+      const defaultPct = (100 / count).toFixed(1);
+
+      container.innerHTML = members.map((m, idx) => {
+        const u = m.username || m.userId?.username;
+        if (!u) return '';
+
+        let inputHtml = '';
+        if (currentSplitMode === 'EQUAL') {
+          inputHtml = `<span class="modal-share-preview" id="share-prev-${u}" style="font-size: 13px; font-weight: 800; color: var(--accent-mint);">₹${equalShare}</span>`;
+        } else if (currentSplitMode === 'PERCENTAGE') {
+          inputHtml = `
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <input class="form-input inp-split-val" data-user="${u}" type="number" value="${defaultPct}" onkeyup="recalculateModalSplits()" style="width: 60px; height: 32px; padding: 0 6px; font-size: 12px; text-align: center; color: #fff; background: #0A2B20;" />
+              <span style="color: var(--accent-mint); font-weight: 800;">%</span>
+            </div>
+          `;
+        } else if (currentSplitMode === 'EXACT') {
+          inputHtml = `
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <span style="color: var(--accent-mint); font-weight: 800;">₹</span>
+              <input class="form-input inp-split-val" data-user="${u}" type="number" value="${equalShare}" onkeyup="recalculateModalSplits()" style="width: 75px; height: 32px; padding: 0 6px; font-size: 12px; text-align: center; color: #fff; background: #0A2B20;" />
+            </div>
+          `;
+        }
+
+        return `
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05);">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <input type="checkbox" id="chk-member-${u}" checked style="accent-color: var(--accent-mint); cursor: pointer;" />
+              <label for="chk-member-${u}" style="color: #fff; font-size: 13px; font-weight: 700; cursor: pointer;">@${u}</label>
+            </div>
+            ${inputHtml}
+          </div>
+        `;
+      }).join('');
+
+      recalculateModalSplits();
+    }
+
+    function recalculateModalSplits() {
+      const tag = document.getElementById('modal-split-validation-tag');
+      const totalAmt = parseFloat(document.getElementById('inp-exp-amount').value) || 0;
+
+      if (currentSplitMode === 'EQUAL') {
+        const checked = document.querySelectorAll('#modal-split-members-container input[type="checkbox"]:checked');
+        const count = checked.length || 1;
+        const perPerson = (totalAmt / count).toFixed(0);
+        document.querySelectorAll('.modal-share-preview').forEach(el => {
+          el.textContent = `₹${perPerson}`;
+        });
+        if (tag) tag.textContent = `Equal share: ₹${perPerson} each`;
+      } else if (currentSplitMode === 'PERCENTAGE') {
+        const inputs = document.querySelectorAll('.inp-split-val');
+        let sumPct = 0;
+        inputs.forEach(inp => sumPct += parseFloat(inp.value) || 0);
+        if (tag) {
+          const ok = Math.abs(sumPct - 100) < 0.1;
+          tag.textContent = `Total: ${sumPct.toFixed(1)}% ${ok ? '✓' : '(Must be 100%)'}`;
+          tag.style.color = ok ? 'var(--accent-mint)' : '#FFA285';
+        }
+      } else if (currentSplitMode === 'EXACT') {
+        const inputs = document.querySelectorAll('.inp-split-val');
+        let sumAmt = 0;
+        inputs.forEach(inp => sumAmt += parseFloat(inp.value) || 0);
+        if (tag) {
+          const ok = Math.abs(sumAmt - totalAmt) < 0.5;
+          tag.textContent = `Sum: ₹${sumAmt.toFixed(0)} / ₹${totalAmt.toFixed(0)} ${ok ? '✓' : '(Must match total)'}`;
+          tag.style.color = ok ? 'var(--accent-mint)' : '#FFA285';
+        }
+      }
+    }
+
+    async function submitTripExpenseFromUI() {
+      const title = document.getElementById('inp-exp-title').value.trim();
+      const amount = parseFloat(document.getElementById('inp-exp-amount').value);
+      const payer = document.getElementById('inp-exp-payer').value;
+      const saveBtn = document.getElementById('btn-save-trip-exp');
+
+      if (!title || isNaN(amount) || amount <= 0) {
+        alert('Please enter a valid title and positive amount');
+        return;
+      }
+
+      let token = localStorage.getItem('dr_token');
+      if (!token) token = await ensureAutoLogin();
+      if (!token) return;
+
+      const payload = {
+        title,
+        amount,
+        category: currentModalCat,
+        splitType: currentSplitMode,
+        paidByUsername: payer,
+      };
+
+      if (currentSplitMode === 'PERCENTAGE') {
+        const inputs = document.querySelectorAll('.inp-split-val');
+        const splits = [];
+        let sum = 0;
+        inputs.forEach(inp => {
+          const val = parseFloat(inp.value) || 0;
+          sum += val;
+          splits.push({ username: inp.dataset.user, percentage: val });
+        });
+        if (Math.abs(sum - 100) > 0.1) {
+          alert(`Percentages must total 100% (currently ${sum.toFixed(1)}%)`);
+          return;
+        }
+        payload.splits = splits;
+      } else if (currentSplitMode === 'EXACT') {
+        const inputs = document.querySelectorAll('.inp-split-val');
+        const splits = [];
+        let sum = 0;
+        inputs.forEach(inp => {
+          const val = parseFloat(inp.value) || 0;
+          sum += val;
+          splits.push({ username: inp.dataset.user, amount: val });
+        });
+        if (Math.abs(sum - amount) > 0.5) {
+          alert(`Exact shares must total ₹${amount} (currently ₹${sum.toFixed(0)})`);
+          return;
+        }
+        payload.splits = splits;
+      } else {
+        // Equal
+        const checked = document.querySelectorAll('#modal-split-members-container input[type="checkbox"]:checked');
+        const users = [];
+        checked.forEach(c => {
+          const u = c.id.replace('chk-member-', '');
+          if (u) users.push(u);
+        });
+        payload.splitBetweenUsernames = users;
+      }
+
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving Expense...';
+
+      try {
+        const res = await fetch(`${API_BASE}/api/trips/${currentActiveTripId}/expenses`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to add expense');
+
+        closeAddExpenseModal();
+        showTripDetailsToast(`✓ ${data.message || 'Expense added successfully'}`);
+        loadActiveTripDetails();
+        refreshDashboardFromBackend();
+      } catch (err) {
+        alert(`⚠️ ${err.message}`);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = '+ Add Expense to Trip';
+      }
+    }
+
+    async function deleteTripExpenseFromUI(expenseId) {
+      if (!confirm('Are you sure you want to delete this expense?')) return;
+
+      let token = localStorage.getItem('dr_token');
+      if (!token) token = await ensureAutoLogin();
+      if (!token) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/trips/${currentActiveTripId}/expenses/${expenseId}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to delete expense');
+
+        showTripDetailsToast('✓ Expense deleted successfully');
+        loadActiveTripDetails();
+        refreshDashboardFromBackend();
+      } catch (err) {
+        showTripDetailsToast(`⚠️ ${err.message}`, true);
+      }
+    }
+
+    function selectSettlePaymentMethod(mode) {
+      currentSettlePaymentMethod = mode;
+      ['UPI', 'CASH', 'BANK_TRANSFER'].forEach(m => {
+        const b = document.getElementById(`settle-pm-${m}`);
+        if (b) b.classList.remove('active');
+      });
+      const activeBtn = document.getElementById(`settle-pm-${mode}`);
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    function renderPendingSettlementsBanner() {
+      const banner = document.getElementById('dt-pending-settlements-banner');
+      if (!banner) return;
+
+      if (!currentTripPendingSettlements || currentTripPendingSettlements.length === 0) {
+        banner.innerHTML = '';
+        banner.classList.add('hidden');
+        return;
+      }
+
+      banner.classList.remove('hidden');
+      banner.innerHTML = currentTripPendingSettlements.map(req => {
+        const amt = (req.amountMinor / 100).toFixed(0);
+        if (req.needsMyApproval) {
+          return `
+            <div style="background: rgba(23, 80, 61, 0.9); border: 1.5px solid var(--accent-mint); border-radius: 14px; padding: 12px; shadow: 0 4px 12px rgba(0,229,153,0.15);">
+              <div style="display: flex; gap: 8px; align-items: flex-start; margin-bottom: 10px;">
+                <span style="font-size: 18px;">🔔</span>
+                <div style="flex: 1;">
+                  <div style="font-size: 12px; font-weight: 800; color: var(--accent-mint); margin-bottom: 2px;">Payment Verification Needed</div>
+                  <div style="font-size: 11px; color: #fff; line-height: 15px;">
+                    <strong>@${req.payer.username}</strong> marked <span style="font-weight: 800; color: var(--accent-mint);">₹${amt}</span> as paid via <strong>${req.paymentMethod}</strong>${req.proofOrNote ? ` (Ref: ${req.proofOrNote})` : ''}.
+                  </div>
+                </div>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <button onclick="respondToPendingSettlement('${req.id}', 'REJECT')" class="f-btn-outline" style="flex: 1; padding: 7px; font-size: 11px; border-color: #FFA285; color: #FFA285;">Not Received ✕</button>
+                <button onclick="respondToPendingSettlement('${req.id}', 'APPROVE')" class="f-btn-primary" style="flex: 1.6; padding: 7px; font-size: 11px; justify-content: center;">Confirm Received ✓</button>
+              </div>
+            </div>
+          `;
+        }
+
+        if (req.sentByMe) {
+          return `
+            <div style="background: rgba(10, 43, 32, 0.85); border: 1px solid rgba(255, 222, 105, 0.4); border-radius: 14px; padding: 10px 12px; display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 16px;">⏳</span>
+              <div style="flex: 1; font-size: 11px; color: #fff; line-height: 15px;">
+                You marked <strong style="color: #FFDE69;">₹${amt}</strong> as paid to <strong>@${req.receiver.username}</strong> via ${req.paymentMethod}. Awaiting their confirmation to zero out the balance.
+              </div>
+            </div>
+          `;
+        }
+
+        return '';
+      }).join('');
+    }
+
+    function renderPendingSplitsBanner() {
+      const banner = document.getElementById('dt-pending-splits-banner');
+      if (!banner) return;
+
+      if (!currentTripPendingSplits || currentTripPendingSplits.length === 0) {
+        banner.innerHTML = '';
+        banner.classList.add('hidden');
+        return;
+      }
+
+      banner.classList.remove('hidden');
+      banner.innerHTML = currentTripPendingSplits.map(split => {
+        const totalAmt = (split.amountMinor / 100).toFixed(0);
+        const myShare = (split.myShareMinor / 100).toFixed(0);
+        return `
+          <div style="background: rgba(23, 80, 61, 0.95); border: 1.5px solid #FFDE69; border-radius: 14px; padding: 12px; margin-bottom: 4px; box-shadow: 0 4px 16px rgba(0,0,0,0.35);">
+            <div style="display: flex; gap: 8px; align-items: flex-start; margin-bottom: 10px;">
+              <span style="font-size: 20px;">⚡</span>
+              <div style="flex: 1;">
+                <div style="font-size: 12px; font-weight: 800; color: #FFDE69; margin-bottom: 2px;">Split Request Waiting for You</div>
+                <div style="font-size: 11px; color: #fff; line-height: 15px;">
+                  <strong>@${split.paidBy?.username || 'Payer'}</strong> wants to split <strong>${split.title}</strong> (Total: ₹${totalAmt}).
+                </div>
+                <div style="font-size: 12px; font-weight: 800; color: var(--accent-mint); margin-top: 3px;">
+                  Your Share: ₹${myShare}
+                </div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button onclick="respondToSplitFromUI('${split.id}', 'DECLINE')" class="f-btn-outline" style="flex: 1; padding: 7px; font-size: 11px; border-color: #FFA285; color: #FFA285; justify-content: center; cursor: pointer;">Decline ✕</button>
+              <button onclick="respondToSplitFromUI('${split.id}', 'ACCEPT')" class="f-btn-primary" style="flex: 1.6; padding: 7px; font-size: 11px; justify-content: center; background: #00E599; color: #02120C; font-weight: 800; cursor: pointer;">Accept Split ✓</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openSettleModal(fromUsername, toUsername, amountMinor) {
+      currentPendingSettle = { fromUsername, toUsername, amountMinor };
+      const modal = document.getElementById('modal-settle-confirm');
+      document.getElementById('settle-modal-amount').textContent = `₹${(amountMinor / 100).toFixed(0)}`;
+      document.getElementById('settle-modal-fromto').innerHTML = `
+        <span style="color:#fff;">@${fromUsername}</span> pays <span style="color:var(--accent-mint);">@${toUsername}</span>
+      `;
+      document.getElementById('settle-modal-ref').value = '';
+      selectSettlePaymentMethod('UPI');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeSettleModal() {
+      const modal = document.getElementById('modal-settle-confirm');
+      if (modal) modal.classList.add('hidden');
+      currentPendingSettle = null;
+    }
+
+    async function executeSettleUpConfirmation() {
+      if (!currentPendingSettle) return;
+      const btn = document.getElementById('btn-confirm-settle');
+
+      let token = localStorage.getItem('dr_token');
+      if (!token) token = await ensureAutoLogin();
+      if (!token) return;
+
+      btn.disabled = true;
+      btn.textContent = 'Sending Request...';
+
+      const refNote = document.getElementById('settle-modal-ref').value;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/trips/${currentActiveTripId}/settlements/request`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            creditorUsername: currentPendingSettle.toUsername,
+            amountMinor: currentPendingSettle.amountMinor,
+            paymentMethod: currentSettlePaymentMethod,
+            proofOrNote: refNote
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to send settlement request');
+
+        closeSettleModal();
+        showTripDetailsToast(`✓ ${data.message || 'Settlement request sent! Awaiting confirmation.'}`);
+        loadActiveTripDetails();
+        refreshDashboardFromBackend();
+      } catch (err) {
+        alert(`⚠️ ${err.message}`);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Send Request ➔';
+      }
+    }
+
+    async function respondToPendingSettlement(requestId, action) {
+      let token = localStorage.getItem('dr_token');
+      if (!token) token = await ensureAutoLogin();
+      if (!token) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/trips/${currentActiveTripId}/settlements/${requestId}/respond`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ action })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to respond to settlement request');
+
+        showTripDetailsToast(`✓ ${data.message}`);
+        loadActiveTripDetails();
+        refreshDashboardFromBackend();
+      } catch (err) {
+        alert(`⚠️ ${err.message}`);
+      }
+    }
+
+    async function respondToSplitFromUI(expenseId, action) {
+      let token = localStorage.getItem('dr_token');
+      if (!token) token = await ensureAutoLogin();
+      if (!token) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/trips/${currentActiveTripId}/expenses/${expenseId}/splits/respond`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ action })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to respond to split request');
+
+        showTripDetailsToast(`✓ ${data.message || (action === 'ACCEPT' ? 'Split accepted!' : 'Split declined!')}`);
+        loadActiveTripDetails();
+        refreshDashboardFromBackend();
+      } catch (err) {
+        alert(`⚠️ ${err.message}`);
+      }
+    }
+  </script>
+</body>
+</html>

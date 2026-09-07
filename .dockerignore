@@ -1,0 +1,22 @@
+# Dependency directories
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Git & Agent artifacts
+.git/
+.gitignore
+.github/
+.agents/
+.DS_Store
+
+# Environment variables & secrets (NEVER bake into image!)
+.env
+.env.local
+.env.*.local
+
+# Logs and temporary test scripts
+*.log
+coverage/
+scratch/

@@ -1,0 +1,96 @@
+name: Divide & Rule — CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  # =========================================================
+  # STAGE 1: Continuous Integration (CI) — Automated Testing
+  # =========================================================
+  test-and-validate:
+    name: Run Automated Test Suite
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Check out repository code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js 22 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: 📦 Install project dependencies
+        run: npm ci
+
+      - name: 🧪 Execute 42/42 Automated Financial & Split Tests
+        run: npm test
+        env:
+          NODE_ENV: test
+          JWT_SECRET: ci_pipeline_super_secure_jwt_secret_2026
+
+  # =========================================================
+  # STAGE 2: Continuous Delivery (CD) — Build & Push to Docker Hub
+  # =========================================================
+  build-and-push-docker:
+    name: Build & Push Image to Docker Hub
+    needs: test-and-validate
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+
+    steps:
+      - name: 📥 Check out repository code
+        uses: actions/checkout@v4
+
+      - name: 🐳 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔑 Log in to Docker Hub
+        if: env.DOCKERHUB_USERNAME != ''
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+
+      - name: 🚀 Build and Push Multi-Platform Image
+        if: env.DOCKERHUB_USERNAME != ''
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/divide-and-rule:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/divide-and-rule:${{ github.sha }}
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+
+  # =========================================================
+  # STAGE 3: Continuous Deployment (CD) — Deploy to Vercel
+  # =========================================================
+  deploy-to-vercel:
+    name: Deploy Web Application to Vercel
+    needs: test-and-validate
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+
+    steps:
+      - name: 📥 Check out repository code
+        uses: actions/checkout@v4
+
+      - name: 🔺 Deploy to Vercel
+        if: env.VERCEL_TOKEN != ''
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}

@@ -1,0 +1,29 @@
+{
+  "name": "divide-and-rule",
+  "version": "1.0.0",
+  "description": "Divide & Rule — Premium Expense Sharing & Trip Splitting Platform",
+  "main": "server/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "nodemon server/server.js",
+    "test": "node server/tests/runAllTests.js"
+  },
+  "keywords": [
+    "finance",
+    "travel",
+    "expense-sharing",
+    "trip-split",
+    "algorithms"
+  ],
+  "author": "Divide & Rule Team",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.9.5"
+  }
+}

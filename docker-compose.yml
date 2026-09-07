@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  # Divide & Rule Express Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: divide-and-rule-app
+    restart: unless-stopped
+    ports:
+      - "5001:5001"
+    environment:
+      - PORT=5001
+      - NODE_ENV=development
+      - MONGO_URI=mongodb://mongo:27017/divide_and_rule
+      - JWT_SECRET=divide_and_rule_super_secret_jwt_key_2026
+    depends_on:
+      - mongo
+    networks:
+      - dr-network
+
+  # Local MongoDB Service (Allows offline development without cloud Atlas)
+  mongo:
+    image: mongo:7.0
+    container_name: divide-and-rule-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - dr-network
+
+networks:
+  dr-network:
+    driver: bridge
+
+volumes:
+  mongo_data:
+    driver: local
