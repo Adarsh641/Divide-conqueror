@@ -26,6 +26,25 @@ class ApiService {
   getBaseUrl() {
     return BASE_URL;
   }
+
+  async checkHealth(url) {
+    const target = url || BASE_URL;
+    let clean = (target || '').trim().replace(/\/+$/, '');
+    const endpoint = clean.endsWith('/api') ? `${clean}/health` : `${clean}/api/health`;
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+    try {
+      const res = await fetch(endpoint, { signal: controller.signal });
+      clearTimeout(timeoutId);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch (err) {
+      clearTimeout(timeoutId);
+      throw new Error(err.name === 'AbortError' ? 'Connection timed out' : (err.message || 'Server unreachable'));
+    }
+  }
   /**
    * Core HTTP helper — auto-injects JWT Authorization header.
    */

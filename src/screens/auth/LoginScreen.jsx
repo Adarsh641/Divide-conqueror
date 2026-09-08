@@ -13,6 +13,7 @@ import {
 import { colors } from '../../config/colors';
 import { useAuthStore } from '../../store/authStore';
 import api from '../../services/api';
+import { ServerConfigModal } from '../../components/common/ServerConfigModal';
 
 export const LoginScreen = ({ navigation, onNavigateToSignup, onLoginSuccess }) => {
   const [identifier, setIdentifier] = useState('');
@@ -20,6 +21,7 @@ export const LoginScreen = ({ navigation, onNavigateToSignup, onLoginSuccess }) 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [serverConfigVisible, setServerConfigVisible] = useState(false);
 
   const setUser = useAuthStore((state) => state.setUser);
 
@@ -45,7 +47,12 @@ export const LoginScreen = ({ navigation, onNavigateToSignup, onLoginSuccess }) 
         navigation.replace('Home');
       }
     } catch (err) {
-      setErrorMessage(err.message || 'Unable to connect to server');
+      const rawMsg = err.message || '';
+      if (rawMsg.includes('Network') || rawMsg.includes('Failed to fetch') || rawMsg.includes('connect')) {
+        setErrorMessage(`Network error: Cannot reach server at ${api.getBaseUrl()}. Tap "Server Settings" above to verify.`);
+      } else {
+        setErrorMessage(rawMsg || 'Unable to connect to server');
+      }
     } finally {
       setLoading(false);
     }
@@ -62,8 +69,17 @@ export const LoginScreen = ({ navigation, onNavigateToSignup, onLoginSuccess }) 
       >
         {/* Brand Header */}
         <View style={styles.header}>
-          <View style={styles.brandBadge}>
-            <Text style={styles.brandBadgeText}>✦ DIVIDE & RULE</Text>
+          <View style={styles.headerTopRow}>
+            <View style={styles.brandBadge}>
+              <Text style={styles.brandBadgeText}>✦ DIVIDE & RULE</Text>
+            </View>
+            <TouchableOpacity
+              style={styles.serverPill}
+              onPress={() => setServerConfigVisible(true)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.serverPillText}>⚙️ Server</Text>
+            </TouchableOpacity>
           </View>
           <Text style={styles.title}>Welcome Back</Text>
           <Text style={styles.subtitle}>
@@ -73,9 +89,14 @@ export const LoginScreen = ({ navigation, onNavigateToSignup, onLoginSuccess }) 
 
         {/* Error Alert */}
         {errorMessage ? (
-          <View style={styles.errorBanner}>
+          <TouchableOpacity
+            style={styles.errorBanner}
+            onPress={() => setServerConfigVisible(true)}
+            activeOpacity={0.8}
+          >
             <Text style={styles.errorText}>⚠️ {errorMessage}</Text>
-          </View>
+            <Text style={styles.errorHintText}>Tap to check server settings ➔</Text>
+          </TouchableOpacity>
         ) : null}
 
         {/* Form Inputs */}
@@ -140,6 +161,11 @@ export const LoginScreen = ({ navigation, onNavigateToSignup, onLoginSuccess }) 
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      <ServerConfigModal
+        visible={serverConfigVisible}
+        onClose={() => setServerConfigVisible(false)}
+      />
     </KeyboardAvoidingView>
   );
 };
@@ -157,6 +183,25 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 32,
   },
+  headerTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  serverPill: {
+    backgroundColor: 'rgba(52, 211, 153, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(52, 211, 153, 0.25)',
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+  },
+  serverPillText: {
+    color: colors.mint,
+    fontSize: 12,
+    fontWeight: '700',
+  },
   brandBadge: {
     alignSelf: 'flex-start',
     backgroundColor: 'rgba(0, 229, 153, 0.12)',
@@ -165,7 +210,12 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: 'rgba(0, 229, 153, 0.3)',
-    marginBottom: 16,
+  },
+  errorHintText: {
+    color: colors.mint,
+    fontSize: 11,
+    fontWeight: '700',
+    marginTop: 4,
   },
   brandBadgeText: {
     color: colors.primary,

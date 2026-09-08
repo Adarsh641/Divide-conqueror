@@ -277,6 +277,33 @@ divide-and-rule/
 │       ├── trips/                       # TripsHubScreen, CreateTripScreen, TripDetailsScreen
 │       └── friends/                     # FriendsScreen
 │
-└── preview/
-    └── index.html                       # Standalone Interactive Web Simulator
 ```
+
+---
+
+## 9. Android Startup Crash Resolution & Build 6 (Verified Production APK)
+
+### 9.1 The "Divide & Rule keeps stopping" Issue
+When opening the initial EAS build, Android immediately aborted startup with the system alert:
+> *"Divide & Rule keeps stopping"*
+
+#### Root Cause Analysis:
+1. **Missing `registerRootComponent` / `AppRegistry` Binding**: In React Native Android, `MainActivity.kt` executes `getMainComponentName(): String = "main"`. When the JavaScript runtime initializes, it queries `AppRegistry.getRunnable("main")`. Because `App.js` was simply exported as default without calling Expo's `registerRootComponent(App)` or `AppRegistry.registerComponent('main', () => App)`, the bridge failed to find the entry component, triggering an immediate uncaught crash.
+2. **Missing `SafeAreaProvider` Context**: Modern React Native `SafeAreaView` requires an encompassing `<SafeAreaProvider>` context; omitting this throws `No safe area value available`.
+3. **React Navigation Hooks in Custom Navigation**: Screens utilizing `useFocusEffect` without a parent `<NavigationContainer>` crashed with `Couldn't find a navigation object`.
+4. **Localhost Network Binding**: On a real physical Android device, `localhost` points to the phone itself rather than the host computer running the backend server.
+
+### 9.2 The Resolution
+1. **Entrypoint Registration**: Created `index.js` as the standard Expo entrypoint invoking `registerRootComponent(App)`, registered `'main'` in `App.js`, and updated `package.json` `"main": "index.js"`.
+2. **Safe Area & Crash Boundary**: Wrapped the root application in `<SafeAreaProvider>` and implemented a high-resilience `<ErrorBoundary>` fallback screen with an instant "Try Again" recovery action.
+3. **Focus Lifecycle Refactoring**: Replaced `@react-navigation/native` focus hooks with native React `useEffect` hooks across `HomeScreen.jsx`, `TripsHubScreen.jsx`, `TripDetailsScreen.jsx`, and `FriendsScreen.jsx`.
+4. **Mobile API Endpoint**: Configured `api.js` to target the host machine's Wi-Fi IP (`http://192.168.1.11:5001/api`) with dynamic URL fallback support.
+
+### 9.3 Build 6 Verification Metadata
+- **Build ID**: `4ae5d47b-f5f6-4098-a237-504740457672`
+- **Status**: `FINISHED`
+- **Platform**: Android Standalone APK (Release)
+- **Commit**: `84c4620` (`fix(mobile): register root component with AppRegistry to fix Android keeps stopping crash`)
+- **Direct APK Download**: [https://expo.dev/artifacts/eas/uLSQ5g-xVlkfOG_owQKzWHV85C8UFrBwGwL4bRYgEK4.apk](https://expo.dev/artifacts/eas/uLSQ5g-xVlkfOG_owQKzWHV85C8UFrBwGwL4bRYgEK4.apk)
+- **Expo Build Dashboard**: [https://expo.dev/accounts/adarsh76777/projects/divide-and-rule/builds/4ae5d47b-f5f6-4098-a237-504740457672](https://expo.dev/accounts/adarsh76777/projects/divide-and-rule/builds/4ae5d47b-f5f6-4098-a237-504740457672)
+
