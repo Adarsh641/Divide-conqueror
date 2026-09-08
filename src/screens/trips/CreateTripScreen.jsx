@@ -134,6 +134,30 @@ export const CreateTripScreen = ({ navigation, onTripCreated }) => {
     setMembers(members.filter((m) => m.id !== id));
   };
 
+  const parseFlexibleDate = (str) => {
+    if (!str) return null;
+    const clean = str.trim();
+
+    // DD-MM-YYYY or DD/MM/YYYY
+    const dmyMatch = clean.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+    if (dmyMatch) {
+      const [, day, month, year] = dmyMatch;
+      const d = new Date(Number(year), Number(month) - 1, Number(day));
+      if (!isNaN(d.getTime())) return d;
+    }
+
+    // YYYY-MM-DD or YYYY/MM/DD
+    const ymdMatch = clean.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+    if (ymdMatch) {
+      const [, year, month, day] = ymdMatch;
+      const d = new Date(Number(year), Number(month) - 1, Number(day));
+      if (!isNaN(d.getTime())) return d;
+    }
+
+    const d = new Date(clean);
+    return isNaN(d.getTime()) ? null : d;
+  };
+
   // ── Step navigation & validation ──────────────────────────────────────────
   const validateStep1 = () => {
     if (!tripName.trim()) {
@@ -145,7 +169,22 @@ export const CreateTripScreen = ({ navigation, onTripCreated }) => {
       return false;
     }
     if (!startDate.trim() || !endDate.trim()) {
-      Alert.alert('Required', 'Please enter start and end dates (e.g. 2026-10-12).');
+      Alert.alert('Required', 'Please enter start and end dates (e.g. 2026-10-12 or 12-10-2026).');
+      return false;
+    }
+    const parsedStart = parseFlexibleDate(startDate);
+    const parsedEnd = parseFlexibleDate(endDate);
+
+    if (!parsedStart) {
+      Alert.alert('Invalid Start Date', 'Please enter a valid start date (e.g. 2026-10-12 or 12-10-2026).');
+      return false;
+    }
+    if (!parsedEnd) {
+      Alert.alert('Invalid End Date', 'Please enter a valid end date (e.g. 2026-10-20 or 20-10-2026).');
+      return false;
+    }
+    if (parsedEnd < parsedStart) {
+      Alert.alert('Invalid Date Range', 'End date cannot be earlier than start date.');
       return false;
     }
     return true;
@@ -162,12 +201,14 @@ export const CreateTripScreen = ({ navigation, onTripCreated }) => {
 
         // Submit usernames of all added members (owner is auto-added by backend)
         const memberUsernames = members.map((m) => m.username);
+        const parsedStart = parseFlexibleDate(startDate);
+        const parsedEnd = parseFlexibleDate(endDate);
 
         const payload = {
           name: tripName.trim(),
           destination: destination.trim(),
-          startDate: new Date(startDate).toISOString(),
-          endDate: new Date(endDate).toISOString(),
+          startDate: parsedStart.toISOString(),
+          endDate: parsedEnd.toISOString(),
           currency,
           memberUsernames,
           coverImage: selectedCover,
@@ -297,7 +338,7 @@ export const CreateTripScreen = ({ navigation, onTripCreated }) => {
                     <TextInput
                       value={startDate}
                       onChangeText={setStartDate}
-                      placeholder="Start Date"
+                      placeholder="Start (e.g. 2026-10-12)"
                       placeholderTextColor={colors.textMuted}
                       style={styles.textInput}
                     />
@@ -307,12 +348,15 @@ export const CreateTripScreen = ({ navigation, onTripCreated }) => {
                     <TextInput
                       value={endDate}
                       onChangeText={setEndDate}
-                      placeholder="End Date"
+                      placeholder="End (e.g. 2026-10-18)"
                       placeholderTextColor={colors.textMuted}
                       style={styles.textInput}
                     />
                   </View>
                 </View>
+                <Text style={styles.dateHintText}>
+                  Formats accepted: YYYY-MM-DD (e.g. 2026-10-12) or DD-MM-YYYY (e.g. 12-10-2026)
+                </Text>
               </View>
 
               {/* Currency Dropdown Selector */}
@@ -928,6 +972,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingVertical: 12,
     lineHeight: 18,
+  },
+  dateHintText: {
+    fontSize: 11,
+    color: colors.mint,
+    marginTop: 4,
+    opacity: 0.85,
   },
 });
 
