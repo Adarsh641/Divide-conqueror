@@ -15,7 +15,11 @@
 7. [Project Directory Structure](#-project-directory-structure)
 8. [Getting Started & Local Development](#-getting-started--local-development)
 9. [Running Automated Tests](#-running-automated-tests)
-10. [Product Roadmap & Next Steps](#-product-roadmap--next-steps)
+10. [Production Deployment Guide](#-production-deployment-guide)
+11. [Consent-Based Expense Split & Settlement Engine](#-consent-based-expense-split--settlement-engine)
+12. [Android Native Mobile App & EAS Build Pipeline](#-android-native-mobile-app--eas-build-pipeline)
+13. [Engineering Chronicle: Problems Faced, Root Causes & Fixes](#-engineering-chronicle-problems-faced-root-causes--fixes)
+14. [Mobile App Releases & Installation Guide](#-mobile-app-releases--installation-guide)
 
 ---
 
@@ -341,3 +345,104 @@ JWT_SECRET=your_production_32_char_secret_key
 - Host `preview/index.html` on Vercel or Netlify.
 - Host the backend `server/` on Render or Railway.
 - CORS is pre-configured to accept incoming requests from your custom frontend domain.
+
+---
+
+## 🤝 Consent-Based Expense Split & Settlement Engine
+
+### 1. Consent-Based Split Approval Flow
+Traditional bill-splitting apps burden users with debts unilaterally without their confirmation. **Divide & Rule** implements a consent-driven protocol:
+- **Payer Auto-Consent**: When a user creates an expense, their own share is automatically marked as `'ACCEPTED'`.
+- **Peer Debt Isolation**: All other invited members have their split placed in `'PENDING'` status.
+- **Strict Invariant Guarantee**: As long as a member's split remains `'PENDING'`, **their active net balance remains unaffected (0 paise change)**, and the amount is isolated in `pendingShareMinor`. The payer is also not credited for unconfirmed shares, strictly preserving the core ledger invariant:
+  $$\sum_{u} \text{Net Balance}_u \equiv 0$$
+- **Peer Decision**:
+  - **Accept Split (`[Accept Split ✓]`)**: Transitions split to `'ACCEPTED'`, commits the debt to the active balance ledger, and re-computes optimal settlement paths in real time.
+  - **Decline Split (`[Decline ✕]`)**: Transitions split to `'DECLINED'`. The user is never billed for that expense.
+
+### 2. Two-Party Peer Settlement Verification
+- Debtor submits a payment claim selecting their payment method (`UPI`, `CASH`, or `BANK_TRANSFER`), entering reference notes and timestamps.
+- The request transitions to `'PENDING_APPROVAL'`.
+- The creditor receives an actionable alert and can verify receipt with **Approve ✓** (which applies the credit) or **Reject ✕** with feedback.
+
+---
+
+## 📱 Android Native Mobile App & EAS Build Pipeline
+
+Divide & Rule features a production-ready mobile app built with React Native and Expo SDK 52.
+
+### Cloud Build Architecture (Expo Application Services - EAS)
+- **Standalone Android APK**: Compiled directly into a standalone `.apk` using EAS Build cloud workers. Does not require a paid Google Play Developer account.
+- **EAS Profile (`preview`)**: Configured in `eas.json` with `"buildType": "apk"` for instant side-loading on any Android device.
+- **Entrypoint Architecture**: Standardized on `index.js` invoking Expo's `registerRootComponent(App)` and `AppRegistry.registerComponent('main', () => App)` for native bridge binding.
+
+---
+
+## 🛠 Engineering Chronicle: Problems Faced, Root Causes & Fixes
+
+During the end-to-end development, integration, and Android native compilation of Divide & Rule, the following technical challenges were encountered and resolved:
+
+### 1. Dependency Version Mismatches & Expo Doctor Failure
+- **Symptom**: `npx expo-doctor` reported check failures with exit code 1; build failed to initiate.
+- **Root Cause**: NPM installed mismatched native package versions (`react-native@0.76.6` instead of `0.76.9`, `@react-native-async-storage/async-storage@2.2.0` instead of `1.23.1`, and `react-native-svg@15.15.5` instead of `15.8.0`).
+- **Resolution**: Ran `npx expo install --check` and pinned exact SDK 52 compatible dependency versions in `package.json`. Verified with 18/18 passing checks in `expo-doctor`.
+
+### 2. Metro Bundler Babel / JSX Syntax Parsing Errors
+- **Symptom**: Cloud Gradle task `:app:bundleReleaseJsAndAssets` threw syntax errors parsing JSX constructs inside React Native components.
+- **Root Cause**: The project lacked a root `babel.config.js`, causing Metro bundler to default to standard JavaScript parsing rather than JSX / React Native transformations.
+- **Resolution**: Created `babel.config.js` with `presets: ['babel-preset-expo']`.
+
+### 3. Android Startup Crash ("Divide & Rule keeps stopping")
+- **Symptom**: The APK installed cleanly on Android phones, but crashed immediately upon tapping the app icon with the system dialog: *"Divide & Rule keeps stopping"*.
+- **Root Causes**:
+  1. **Missing Root Component Registration**: Android's `MainActivity.kt` asks the React Native bridge for a component named `"main"`. In `App.js`, the component was exported as a standard default export without calling `registerRootComponent(App)` or `AppRegistry.registerComponent('main', () => App)`. The native runtime found an empty app registry and immediately aborted.
+  2. **Missing `SafeAreaProvider` Context**: Modern React Native `SafeAreaView` threw an unhandled exception (`No safe area value available`) because the root component tree was not wrapped with `<SafeAreaProvider>`.
+  3. **React Navigation Context**: Screens used `@react-navigation/native` hooks (`useFocusEffect`) outside of a `<NavigationContainer>`, throwing unhandled context exceptions.
+- **Resolution**:
+  - Created standard `index.js` calling `registerRootComponent(App)`.
+  - Added `AppRegistry.registerComponent('main', () => App)` to `App.js` and set `"main": "index.js"` in `package.json`.
+  - Wrapped root in `<SafeAreaProvider>`.
+  - Replaced navigation hooks with native React `useEffect` hooks across `HomeScreen.jsx`, `TripsHubScreen.jsx`, `TripDetailsScreen.jsx`, and `FriendsScreen.jsx`.
+  - Added a resilient `<ErrorBoundary>` fallback screen with an instant "Try Again" recovery action.
+
+### 4. Android Cleartext HTTP Network Security Policy ("Network error" on Login/Signup)
+- **Symptom**: The app opened smoothly, but attempting to log in or create an account threw: `⚠️ Network error` / `⚠️ Network request failed`.
+- **Root Causes**:
+  1. **Android OS Cleartext HTTP Block**: Starting with Android 9 (API 28+), Android OS strictly disables cleartext (unencrypted HTTP) traffic by default. When the app attempted to reach the laptop backend at `http://192.168.1.11:5001/api/auth/login`, Android's `NetworkSecurityPolicy` immediately dropped the socket connection.
+  2. **Fixed Hardcoded IP without in-app configuration**: If the phone was on mobile data, or on a different Wi-Fi network, or if the laptop's IP changed, the hardcoded address became unreachable.
+- **Resolution**:
+  - Installed `expo-build-properties` plugin and configured `android: { usesCleartextTraffic: true }` in `app.json`.
+  - Created `ServerConfigModal.jsx` with a **`⚙️ Server`** button in the header of both Login and Signup screens.
+  - Added an in-app **"Test Connection"** feature that checks `/api/health` in real time and provides instant feedback.
+  - Allowed users to edit and save any custom IP, localtunnel, ngrok, or cloud URL directly inside the app, persisting changes to `AsyncStorage`.
+
+### 5. Expo Configuration Schema Validation Error
+- **Symptom**: Adding `usesCleartextTraffic: true` directly under the `android` object in `app.json` caused `expo-doctor` to fail schema validation.
+- **Root Cause**: In Expo SDK 52, native Android manifest properties are managed through config plugins rather than top-level JSON keys.
+- **Resolution**: Installed `expo-build-properties` and configured `usesCleartextTraffic` inside the `plugins` array. Passed 18/18 `expo-doctor` checks.
+
+---
+
+## 📲 Mobile App Releases & Installation Guide
+
+### Build Release Matrix
+
+| Build | ID | Status | Key Milestone | Artifact |
+|---|---|---|---|---|
+| **Build 5** | `4655f074` | FINISHED | Initial EAS Android APK | `.apk` (v1.0.0) |
+| **Build 6** | `4ae5d47b` | FINISHED | Root component registration & ErrorBoundary fix | `.apk` (v1.0.0) |
+| **Build 7** | `0a1fbf79` | **FINISHED** | **Cleartext HTTP enabled (`usesCleartextTraffic: true`) & in-app Server Settings (`⚙️ Server`)** | [Download APK](https://expo.dev/artifacts/eas/k78Iv5MM8OoBHaVc14HGOKUgZz-iUWSoF4MKSHu8qyE.apk) |
+
+### Latest Stable Release (Build 7)
+- **Direct APK Download**: [Download Divide & Rule APK (Build 7)](https://expo.dev/artifacts/eas/k78Iv5MM8OoBHaVc14HGOKUgZz-iUWSoF4MKSHu8qyE.apk)
+- **Expo Build Dashboard**: [View on Expo](https://expo.dev/accounts/adarsh76777/projects/divide-and-rule/builds/0a1fbf79-9a66-47c6-87c3-a106276f074d)
+
+### How to Install and Run on Android:
+1. **Uninstall any previous version** of Divide & Rule from your device.
+2. Open the link above in Chrome on your phone to download `k78Iv5MM8OoBHaVc14HGOKUgZz-iUWSoF4MKSHu8qyE.apk`.
+3. Tap **Install** (allow "Install unknown apps" if prompted).
+4. Make sure your phone is connected to the **same Wi-Fi network** as your laptop.
+5. Launch the app:
+   - Tap **`⚙️ Server`** in the top right corner.
+   - Tap **"Test Connection"** to verify connection to `http://192.168.1.11:5001/api`.
+   - Tap **"Save & Apply"**, then log in or sign up!
