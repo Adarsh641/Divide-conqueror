@@ -2,12 +2,14 @@
   "name": "divide-and-rule",
   "version": "1.0.0",
   "description": "Divide & Rule — Premium Expense Sharing & Trip Splitting Platform",
-  "main": "App.js",
+  "main": "index.js",
   "type": "commonjs",
   "scripts": {
     "start": "node server/server.js",
     "dev": "nodemon server/server.js",
-    "test": "node server/tests/runAllTests.js"
+    "test": "node server/tests/runAllTests.js",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
   "keywords": [
     "finance",

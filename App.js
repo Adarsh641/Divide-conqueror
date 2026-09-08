@@ -1,6 +1,7 @@
 import React, { useState, useEffect, Component } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, StatusBar, AppRegistry } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { registerRootComponent } from 'expo';
 import { useAuthStore } from './src/store/authStore';
 import { colors } from './src/config/colors';
 
@@ -176,6 +177,10 @@ export default function App() {
     </SafeAreaProvider>
   );
 }
+
+// Register the root component with Expo and React Native AppRegistry
+registerRootComponent(App);
+AppRegistry.registerComponent('main', () => App);
 
 const styles = StyleSheet.create({
   container: {
