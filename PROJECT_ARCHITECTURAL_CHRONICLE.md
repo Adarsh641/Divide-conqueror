@@ -189,10 +189,23 @@ We chose **Expo Application Services (EAS Build)** to build a 100% free standalo
 - **Root Cause**: Discovered via raw Brotli decompression of EAS worker logs that screens imported `react-native-safe-area-context` (for status bars) and `@react-navigation/native` (for `useFocusEffect`), but neither package was declared in `package.json`.
 - **Fix Applied**: Ran `npx expo install react-native-safe-area-context @react-navigation/native` to install pinned, Expo SDK 52-compatible versions (`react-native-safe-area-context@4.12.0`). Verified with `npx expo-doctor` (18/18 checks passed).
 
-#### ✅ Build 4 (`4655f074-b8da-4d78-9dfa-f9a808a13258`) — SUCCESS!
-- **Result**: JavaScript bundle compiled with 0 errors. Native C++ / Java compiled across all 4 Android ABIs (`arm64-v8a`, `armeabi-v7a`, `x86`, `x86_64`). Gradle assembled and signed the `.apk`.
-- **Artifact**: Direct `.apk` download URL generated and verified.
-  - Download Link: `https://expo.dev/artifacts/eas/kPeLXdjYO7HRXUpkqcQU2tUyx1U_EyyUUTP9kTyNT20.apk`
+#### ❌ Build 4 (`4655f074-b8da-4d78-9dfa-f9a808a13258`)
+- **Symptom**: APK compiled successfully, but crashed / closed immediately upon opening on real Android phones.
+- **Root Cause**:
+  1. `react-native-safe-area-context` was used by 5 screens without a `<SafeAreaProvider>` at the root of `App.js`, throwing fatal exception `No safe area value available`.
+  2. 4 screens imported `useFocusEffect` from `@react-navigation/native` without a parent `<NavigationContainer>`, throwing `Couldn't find a navigation object`.
+  3. `SplashScreen.jsx` had a fallback routing to `'Welcome'`, which had no view mapped.
+- **Fix Applied**:
+  1. Wrapped `App.js` with `<SafeAreaProvider>`.
+  2. Added Crash Guard `<ErrorBoundary>` with one-click app reload recovery.
+  3. Replaced `@react-navigation/native` `useFocusEffect` with standard React `useEffect` across all screens.
+  4. Configured `api.js` base URL to default to local Wi-Fi LAN IP (`http://192.168.1.11:5001/api`) with dynamic URL override support.
+  5. Routed `SplashScreen` directly to `LoginScreen`.
+
+#### ✅ Build 5 (`7bfa8304-f9a6-4891-958b-993fe8fd0bda`) — STABLE RELEASE!
+- **Result**: Completely stable Android APK with all crash hazards eliminated, safe area context initialized, error boundary active, and local Wi-Fi networking enabled.
+- **Artifact**:
+  - Download Link: `https://expo.dev/artifacts/eas/XPpDAYP9hKUxiy_X6kTvz1dfNaDm3a64P0VI1GRQFc8.apk`
 
 ---
 
