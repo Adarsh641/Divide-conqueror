@@ -160,11 +160,39 @@ npm test
 
 ---
 
-## 9. Mobile App Packaging (Android APK)
+## 9. Mobile App Packaging & The Android Cloud Build Odyssey
 
-- **[`app.json`](file:///Users/adarshgoutam/Desktop/first%20project/app.json)**: Android package identifier (`com.adarsh.divideandrule`), versioning, and dark theme splash settings.
-- **[`eas.json`](file:///Users/adarshgoutam/Desktop/first%20project/eas.json)**: Configured with `"buildType": "apk"` to produce standalone, shareable Android APK files for direct installation on phones.
-- **[`App.js`](file:///Users/adarshgoutam/Desktop/first%20project/App.js)**: Root React Native entrypoint binding session checks, navigation, and screens.
+We chose **Expo Application Services (EAS Build)** to build a 100% free standalone Android `.apk` in the cloud without requiring a local Android Studio / Gradle toolchain or paying Google's $25 Play Store developer fee.
+
+### Mobile Configuration:
+- **[`app.json`](file:///Users/adarshgoutam/Desktop/first%20project/app.json)**: Android package identifier (`com.adarsh.divideandrule`), app name (`Divide & Rule`), dark theme splash (`#051B14`), versioning (`1.0.0`), and linked EAS `projectId`.
+- **[`eas.json`](file:///Users/adarshgoutam/Desktop/first%20project/eas.json)**: Configured with `"buildType": "apk"` in the `"preview"` profile to produce a standalone `.apk` directly installable on any Android phone.
+- **[`App.js`](file:///Users/adarshgoutam/Desktop/first%20project/App.js)**: Root React Native entrypoint binding session checks, navigation, and all 8 screens.
+
+---
+
+### The 4 Cloud Builds & All Errors Overcome:
+
+#### ❌ Build 1 (`7ce0b41e-6dbf-47dc-a07c-9b1da6477e68`)
+- **Symptom**: Cloud build failed immediately during project initialization.
+- **Root Cause**: `package.json` had `"main": "server/server.js"`, but `server/` was excluded by `.easignore`. Metro bundler couldn't find the entrypoint.
+- **Fix Applied**: Updated `package.json` `"main"` to point to `"App.js"`.
+
+#### ❌ Build 2 (`f41ae835-fd7a-45b5-92c8-bddead66c69e`)
+- **Symptom**: Failed during `npx expo export:embed` (JavaScript bundling).
+- **Root Cause**: The project was missing [`babel.config.js`](file:///Users/adarshgoutam/Desktop/first%20project/babel.config.js). Metro had no instructions to transpile JSX syntax inside `src/`. Also, `app.json` had a dead reference to `./preview/favicon.ico`.
+- **Fix Applied**: Created `babel.config.js` with `babel-preset-expo`, removed dead favicon path from `app.json`.
+
+#### ❌ Build 3 (`6a4275fe-8011-468e-a61b-5cadd9b245b8`)
+- **Symptom**: Metro bundler failed with:
+  `Error: Unable to resolve module react-native-safe-area-context from src/screens/main/HomeScreen.jsx`
+- **Root Cause**: Discovered via raw Brotli decompression of EAS worker logs that screens imported `react-native-safe-area-context` (for status bars) and `@react-navigation/native` (for `useFocusEffect`), but neither package was declared in `package.json`.
+- **Fix Applied**: Ran `npx expo install react-native-safe-area-context @react-navigation/native` to install pinned, Expo SDK 52-compatible versions (`react-native-safe-area-context@4.12.0`). Verified with `npx expo-doctor` (18/18 checks passed).
+
+#### ✅ Build 4 (`4655f074-b8da-4d78-9dfa-f9a808a13258`) — SUCCESS!
+- **Result**: JavaScript bundle compiled with 0 errors. Native C++ / Java compiled across all 4 Android ABIs (`arm64-v8a`, `armeabi-v7a`, `x86`, `x86_64`). Gradle assembled and signed the `.apk`.
+- **Artifact**: Direct `.apk` download URL generated and verified.
+  - Download Link: `https://expo.dev/artifacts/eas/kPeLXdjYO7HRXUpkqcQU2tUyx1U_EyyUUTP9kTyNT20.apk`
 
 ---
 
