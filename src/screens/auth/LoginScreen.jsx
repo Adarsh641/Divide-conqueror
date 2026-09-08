@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { colors } from '../../config/colors';
 import { useAuthStore } from '../../store/authStore';
+import api from '../../services/api';
 
 export const LoginScreen = ({ navigation, onNavigateToSignup, onLoginSuccess }) => {
   const [identifier, setIdentifier] = useState('');
@@ -33,23 +34,7 @@ export const LoginScreen = ({ navigation, onNavigateToSignup, onLoginSuccess }) 
 
     try {
       setLoading(true);
-      // In production, BASE_URL is read from env/config
-      const response = await fetch('http://localhost:5001/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          identifier: cleanId,
-          password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Invalid credentials');
-      }
+      const data = await api.login(cleanId, password);
 
       // Save user session in Zustand store
       setUser(data.user, data.token);

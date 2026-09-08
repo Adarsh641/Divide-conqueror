@@ -12,7 +12,6 @@ import {
   Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useFocusEffect } from '@react-navigation/native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { colors } from '../../config/colors';
 import { useExpenseStore } from '../../store/expenseStore';
@@ -93,11 +92,6 @@ export const TripDetailsScreen = ({ route, navigation }) => {
     }
   }, [tripId, fetchTripData, clearMessages]);
 
-  useFocusEffect(
-    useCallback(() => {
-      loadData();
-    }, [loadData])
-  );
 
   // Initialize members when Add Expense modal opens
   const openAddExpenseModal = () => {

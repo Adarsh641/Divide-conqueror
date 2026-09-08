@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, StatusBar } from 'react-native';
+import React, { useState, useEffect, Component } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useAuthStore } from './src/store/authStore';
 import { colors } from './src/config/colors';
 
@@ -13,26 +14,85 @@ import CreateTripScreen from './src/screens/trips/CreateTripScreen';
 import TripDetailsScreen from './src/screens/trips/TripDetailsScreen';
 import FriendsScreen from './src/screens/friends/FriendsScreen';
 
-export default function App() {
+/**
+ * Crash Guard Error Boundary
+ * Catches any unexpected render errors and provides an elegant recovery interface
+ * instead of letting Android abruptly terminate the application process.
+ */
+class ErrorBoundary extends Component {
+  state = { hasError: false, error: null };
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.warn('[DivideAndRule:CrashGuard]', error, errorInfo);
+  }
+
+  handleRestart = () => {
+    this.setState({ hasError: false, error: null });
+    this.props.onRestart?.();
+  };
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <View style={errorStyles.container}>
+          <StatusBar barStyle="light-content" backgroundColor="#051B14" />
+          <Text style={errorStyles.icon}>✦</Text>
+          <Text style={errorStyles.title}>Divide & Rule</Text>
+          <Text style={errorStyles.subtitle}>
+            An unexpected error occurred. Tap below to reload.
+          </Text>
+          {this.state.error?.message ? (
+            <Text style={errorStyles.details} numberOfLines={3}>
+              {this.state.error.message}
+            </Text>
+          ) : null}
+          <TouchableOpacity
+            style={errorStyles.button}
+            onPress={this.handleRestart}
+            activeOpacity={0.85}
+          >
+            <Text style={errorStyles.buttonText}>Restart App</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+function MainNavigator() {
   const [currentScreen, setCurrentScreen] = useState('Splash');
   const [selectedTripId, setSelectedTripId] = useState(null);
-  const { isAuthenticated, checkSession } = useAuthStore();
+  const { checkSession } = useAuthStore();
 
   useEffect(() => {
+    let isMounted = true;
     async function init() {
-      const token = await checkSession();
-      setTimeout(() => {
-        if (token) {
-          setCurrentScreen('Home');
-        } else {
-          setCurrentScreen('Login');
-        }
-      }, 1500);
+      try {
+        const token = await checkSession();
+        setTimeout(() => {
+          if (!isMounted) return;
+          if (token) {
+            setCurrentScreen('Home');
+          } else {
+            setCurrentScreen('Login');
+          }
+        }, 1200);
+      } catch (e) {
+        if (isMounted) setCurrentScreen('Login');
+      }
     }
     init();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  // Navigation Controller Mock
+  // Universal Navigation Bridge
   const navigation = {
     navigate: (screenName, params = {}) => {
       if (params?.tripId) setSelectedTripId(params.tripId);
@@ -41,7 +101,7 @@ export default function App() {
       else if (screenName === 'Friends') setCurrentScreen('Friends');
       else if (screenName === 'CreateTrip') setCurrentScreen('CreateTrip');
       else if (screenName === 'TripDetails') setCurrentScreen('TripDetails');
-      else if (screenName === 'Login') setCurrentScreen('Login');
+      else if (screenName === 'Login' || screenName === 'Welcome') setCurrentScreen('Login');
       else if (screenName === 'Signup') setCurrentScreen('Signup');
       else setCurrentScreen(screenName);
     },
@@ -54,45 +114,66 @@ export default function App() {
       } else {
         setCurrentScreen('Home');
       }
-    }
+    },
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
+    <ErrorBoundary onRestart={() => setCurrentScreen('Login')}>
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor={colors.background || '#051B14'} />
 
-      {currentScreen === 'Splash' && (
-        <SplashScreen navigation={navigation} />
-      )}
+        {currentScreen === 'Splash' && (
+          <SplashScreen navigation={navigation} />
+        )}
 
-      {currentScreen === 'Login' && (
-        <LoginScreen navigation={navigation} />
-      )}
+        {currentScreen === 'Login' && (
+          <LoginScreen
+            navigation={navigation}
+            onNavigateToSignup={() => setCurrentScreen('Signup')}
+            onLoginSuccess={() => setCurrentScreen('Home')}
+          />
+        )}
 
-      {currentScreen === 'Signup' && (
-        <SignupScreen navigation={navigation} />
-      )}
+        {currentScreen === 'Signup' && (
+          <SignupScreen
+            navigation={navigation}
+            onNavigateToLogin={() => setCurrentScreen('Login')}
+            onSignupSuccess={() => setCurrentScreen('Home')}
+          />
+        )}
 
-      {currentScreen === 'Home' && (
-        <HomeScreen navigation={navigation} />
-      )}
+        {currentScreen === 'Home' && (
+          <HomeScreen navigation={navigation} />
+        )}
 
-      {currentScreen === 'Trips' && (
-        <TripsHubScreen navigation={navigation} />
-      )}
+        {currentScreen === 'Trips' && (
+          <TripsHubScreen navigation={navigation} />
+        )}
 
-      {currentScreen === 'CreateTrip' && (
-        <CreateTripScreen navigation={navigation} />
-      )}
+        {currentScreen === 'CreateTrip' && (
+          <CreateTripScreen navigation={navigation} />
+        )}
 
-      {currentScreen === 'TripDetails' && (
-        <TripDetailsScreen navigation={navigation} route={{ params: { tripId: selectedTripId } }} />
-      )}
+        {currentScreen === 'TripDetails' && (
+          <TripDetailsScreen
+            navigation={navigation}
+            route={{ params: { tripId: selectedTripId } }}
+          />
+        )}
 
-      {currentScreen === 'Friends' && (
-        <FriendsScreen navigation={navigation} />
-      )}
-    </View>
+        {currentScreen === 'Friends' && (
+          <FriendsScreen navigation={navigation} />
+        )}
+      </View>
+    </ErrorBoundary>
+  );
+}
+
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <MainNavigator />
+    </SafeAreaProvider>
   );
 }
 
@@ -100,5 +181,53 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background || '#051B14',
+  },
+});
+
+const errorStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#051B14',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+  },
+  icon: {
+    fontSize: 48,
+    color: '#00E599',
+    marginBottom: 16,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#A1B0AB',
+    textAlign: 'center',
+    marginBottom: 20,
+    lineHeight: 20,
+  },
+  details: {
+    fontSize: 12,
+    color: '#FF6B6B',
+    backgroundColor: 'rgba(255, 107, 107, 0.1)',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  button: {
+    backgroundColor: '#00E599',
+    paddingHorizontal: 28,
+    paddingVertical: 14,
+    borderRadius: 14,
+  },
+  buttonText: {
+    color: '#051B14',
+    fontWeight: '800',
+    fontSize: 15,
   },
 });

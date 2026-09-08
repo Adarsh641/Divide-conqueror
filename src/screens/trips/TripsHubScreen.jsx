@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,6 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useFocusEffect } from '@react-navigation/native';
 import Svg, { Path, Circle, Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
 import { colors } from '../../config/colors';
 import { spacing } from '../../config/theme';
@@ -72,12 +71,10 @@ export const TripsHubScreen = ({ navigation }) => {
   const { trips, isLoading, error, fetchTrips } = useTripStore();
   const [activeFilter, setActiveFilter] = useState('All'); // 'All' | 'Active' | 'Settled'
 
-  // Automatically fetch fresh trip data from MongoDB every time screen gains focus
-  useFocusEffect(
-    useCallback(() => {
-      fetchTrips();
-    }, [fetchTrips])
-  );
+  // Automatically fetch fresh trip data from MongoDB whenever screen mounts
+  useEffect(() => {
+    fetchTrips();
+  }, [fetchTrips]);
 
   const handleCreateNewTrip = () => {
     if (navigation?.navigate) {

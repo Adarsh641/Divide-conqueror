@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,6 @@ import {
   Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useFocusEffect } from '@react-navigation/native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { colors } from '../../config/colors';
 import { spacing, typography } from '../../config/theme';
@@ -30,12 +29,10 @@ export const HomeScreen = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState('home');
   const { stats, recentTrips, isLoading, fetchDashboard } = useDashboardStore();
 
-  // Auto-refresh MongoDB dashboard data whenever Home Screen comes into focus
-  useFocusEffect(
-    useCallback(() => {
-      fetchDashboard();
-    }, [fetchDashboard])
-  );
+  // Auto-refresh MongoDB dashboard data whenever Home Screen mounts
+  useEffect(() => {
+    fetchDashboard();
+  }, [fetchDashboard]);
 
   const handleTripSplit = () => {
     navigation?.navigate('CreateTrip');

@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { colors } from '../../config/colors';
 import { useAuthStore } from '../../store/authStore';
+import api from '../../services/api';
 
 export const SignupScreen = ({ navigation, onNavigateToLogin, onSignupSuccess }) => {
   const [fullName, setFullName] = useState('');
@@ -47,24 +48,7 @@ export const SignupScreen = ({ navigation, onNavigateToLogin, onSignupSuccess })
 
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5001/api/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          fullName: cleanFullName,
-          username: cleanUsername,
-          email: cleanEmail,
-          password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create account');
-      }
+      const data = await api.signup(cleanFullName, cleanUsername, cleanEmail, password);
 
       setUser(data.user, data.token);
 

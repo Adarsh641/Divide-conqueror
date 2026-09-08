@@ -1,7 +1,13 @@
 import useAuthStore from '../store/authStore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Backend base URL — update for production deployment
-const BASE_URL = 'http://localhost:5001/api';
+// Default to Mac Wi-Fi LAN IP so mobile devices on the same Wi-Fi can connect
+let BASE_URL = 'http://192.168.1.11:5001/api';
+
+// Restore any custom configured server URL from AsyncStorage
+AsyncStorage.getItem('dr_api_base_url').then(customUrl => {
+  if (customUrl) BASE_URL = customUrl;
+}).catch(() => {});
 
 /**
  * Centralized API Service for Divide & Rule React Native App.
@@ -9,6 +15,17 @@ const BASE_URL = 'http://localhost:5001/api';
  * All field names match the exact backend API contract.
  */
 class ApiService {
+  setBaseUrl(url) {
+    let clean = (url || '').trim().replace(/\/+$/, '');
+    if (clean && !clean.endsWith('/api')) clean = `${clean}/api`;
+    BASE_URL = clean || 'http://192.168.1.11:5001/api';
+    AsyncStorage.setItem('dr_api_base_url', BASE_URL).catch(() => {});
+    return BASE_URL;
+  }
+
+  getBaseUrl() {
+    return BASE_URL;
+  }
   /**
    * Core HTTP helper — auto-injects JWT Authorization header.
    */

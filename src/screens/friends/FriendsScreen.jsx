@@ -11,7 +11,6 @@ import {
   Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useFocusEffect } from '@react-navigation/native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { colors } from '../../config/colors';
 import { useFriendStore } from '../../store/friendStore';
@@ -47,13 +46,11 @@ export const FriendsScreen = ({ navigation }) => {
     clearMessages,
   } = useFriendStore();
 
-  // Auto-refresh friends & requests on focus
-  useFocusEffect(
-    useCallback(() => {
-      fetchAll();
-      clearMessages();
-    }, [fetchAll, clearMessages])
-  );
+  // Auto-refresh friends & requests on mount
+  useEffect(() => {
+    fetchAll();
+    clearMessages();
+  }, [fetchAll, clearMessages]);
 
   // Debounce search query
   useEffect(() => {

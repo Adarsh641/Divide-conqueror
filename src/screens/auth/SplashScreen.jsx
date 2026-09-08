@@ -144,9 +144,9 @@ export const SplashScreen = ({ navigation }) => {
       }).start(() => {
         if (navigation) {
           if (token) {
-            navigation.replace('MainTabs');
+            navigation.replace('Home');
           } else {
-            navigation.replace('Welcome');
+            navigation.replace('Login');
           }
         }
       });
