@@ -2,7 +2,7 @@
   "name": "divide-and-rule",
   "version": "1.0.0",
   "description": "Divide & Rule — Premium Expense Sharing & Trip Splitting Platform",
-  "main": "index.js",
+  "main": "AppEntry.js",
   "type": "commonjs",
   "scripts": {
     "start": "node server/server.js",

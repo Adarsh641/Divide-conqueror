@@ -1,0 +1,11 @@
+# Ignore mobile React Native / Expo assets on Vercel
+AppEntry.js
+App.js
+src/
+.expo/
+babel.config.js
+app.json
+eas.json
+.easignore
+Dockerfile
+docker-compose.yml
